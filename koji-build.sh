@@ -6,6 +6,7 @@ srpm=$1
 dist=dist-centos7
 koji_internal_path=/mnt/koji/work/tasks/
 koji_tasks_path=http://46.231.133.39/kojifiles/work/tasks/
+koji_ui_tasks_uri=http://koji-ctrl.ring.enovance.com/koji/taskinfo?taskID=
 
 echo "Start build of: $1"
 set +e
@@ -13,6 +14,7 @@ koji build --scratch $dist $srpm &> /tmp/out
 set -e
 tid=$(grep 'Created' /tmp/out | awk -F': ' '{print $2}')
 echo "Task id is: $tid"
+echo "Task console is: ${koji_ui_tasks_uri}${tid}"
 while true; do
     koji taskinfo -vr $tid &> /tmp/out2
     state=$(egrep "^State:" /tmp/out2 | awk -F': ' '{print $2}')
