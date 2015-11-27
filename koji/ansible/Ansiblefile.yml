@@ -1,0 +1,34 @@
+- src:  patrik.uytterhoeven.PostgreSQL-For-RHEL6x
+  path: roles
+
+- src:  https://github.com/kostyrevaa/ansible-koji-db.git
+  name: koji-db
+  path: roles
+
+- src:  https://github.com/kostyrevaa/ansible-koji-web.git
+  name: koji-web
+  path: roles
+
+- src:  https://github.com/kostyrevaa/ansible-koji-kojira.git
+  name: koji-kojira
+  path: roles
+
+- src:  https://github.com/kostyrevaa/ansible-koji-hub.git
+  name: koji-hub
+  path: roles
+
+- src:  https://github.com/kostyrevaa/ansible-koji-ca.git
+  name: koji-ca
+  path: roles
+
+- src:  https://github.com/kostyrevaa/ansible-koji-builder.git
+  name: koji-builder
+  path: roles
+
+- src: goozbach.EPEL
+  name: epel
+  path: roles
+
+- src: geerlingguy.nfs
+  name: nfs
+  path: roles

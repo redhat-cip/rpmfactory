@@ -1,0 +1,5 @@
+---
+koji_builder_smtphost: localhost
+koji_builder_from_addr: Koji Build System <buildsys@enovance.com>
+koji_builder_topdir: /mnt/koji
+koji_builder_minspace: 4096
