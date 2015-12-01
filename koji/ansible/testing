@@ -1,15 +1,15 @@
 [koji_db]
-46.231.133.39
+koji-ctrl.ring.enovance.com
 
 [koji_ca]
-46.231.133.39
+koji-ctrl.ring.enovance.com
 
 [koji_hub]
-46.231.133.39
+koji-ctrl.ring.enovance.com
 
 [koji_web]
-46.231.133.39
+koji-ctrl.ring.enovance.com
 
 [koji_builder]
-46.231.133.40
-46.231.133.41
+koji-build01.ring.enovance.com
+koji-build02.ring.enovance.com
