@@ -55,3 +55,5 @@ ssh $ssh_opts ${user}@${koji_server} sudo cp /tmp/rdo-temp-release-1.0-1.noarch.
 ssh $ssh_opts ${user}@${koji_server} sudo createrepo $temppath
 ssh $ssh_opts ${user}@${koji_server} sudo chcon -Rv --type=httpd_sys_content_t $temppath
 echo "URL temporary repository: ${url}"
+
+$WORKSPACE/rpmfactory/run_packstack.sh $url/rdo-temp-release-1.0-1.noarch.rpm $url
