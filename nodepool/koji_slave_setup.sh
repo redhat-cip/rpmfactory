@@ -2,9 +2,18 @@
 
 . base.sh
 
+# install ansible
+sudo yum install -y epel-release
+sudo yum install -y python-crypto git
+sudo pip install -U ansible==1.9.2
+ansible --version
+sudo yum remove -y epel-release
+
+# tox
 sudo yum install -y koji wget python-pip
 sudo pip install -U tox==1.6.1
 
+# swap
 sudo dd if=/dev/zero of=/srv/swap count=4000 bs=1M
 sudo chmod 600 /srv/swap
 sudo mkswap /srv/swap
@@ -15,13 +24,6 @@ sudo wget http://192.168.42.27/conf/koji.conf -O /etc/koji.conf
 sudo wget http://192.168.42.27/conf/jenkins-koji.tgz -O /srv/jenkins-koji.tgz
 sudo tar xvzf /srv/jenkins-koji.tgz -C /home/jenkins/
 sudo chown -R jenkins /home/jenkins/.koji
-
-# install ansible
-sudo yum install -y epel-release
-sudo yum install -y python-crypto git
-sudo pip install -U ansible==1.9.2
-ansible --version
-sudo yum remove -y epel-release
 
 # install khaleesi
 git clone https://github.com/redhat-openstack/khaleesi.git
