@@ -7,14 +7,16 @@ fi
 
 set -ex
 
+# try to workaround conflicts between pip and rpm
+
+sudo pip uninstall pycrypto || :
+
 # install ansible
 
-if ! type -p ansible-playbook; then
-    sudo yum install -y epel-release
-    sudo yum install -y python-pip python-crypto git
-    sudo pip install -U ansible==1.9.2 > ansible_build; ansible --version    
-    sudo yum remove -y epel-release
-fi
+sudo yum install -y epel-release
+sudo yum install -y python-pip python-crypto git
+sudo pip install -U ansible==1.9.2 > ansible_build; ansible --version    
+sudo yum remove -y epel-release
 
 # workaround https://bugzilla.redhat.com/show_bug.cgi?id=1284978
 
@@ -27,11 +29,9 @@ cd $HOME
 [ -d khaleesi ] || git clone https://github.com/redhat-openstack/khaleesi.git
 [ -d khaleesi-settings ] || git clone https://github.com/redhat-openstack/khaleesi-settings.git
 
-#if [ ! -f .ssh/id_rsa ]; then
-#    ssh-keygen -N '' -f .ssh/id_rsa
-#    sudo cp .ssh/id_rsa.pub /root/.ssh/authorized_keys
-#    sudo cp .ssh/id_rsa* /root/.ssh/
-#fi
+if [ ! -f .ssh/id_rsa ]; then
+    ssh-keygen -N '' -f .ssh/id_rsa
+fi
 cat .ssh/id_rsa.pub | sudo tee -a /root/.ssh/authorized_keys
 sudo cp .ssh/id_rsa* /root/.ssh/
 
