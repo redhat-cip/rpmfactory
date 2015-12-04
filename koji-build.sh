@@ -49,7 +49,8 @@ if [ "$state" = "closed" ]; then
 fi
 
 url="http://${koji_server}/$(echo $temppath | sed 's|/srv||')"
-$WORKSPACE/rpmfactory/build-release-rpm.sh $url
+validatedurl=http://${koji_server}/kojifiles/repos/dist-centos7-build/latest/x86_64
+$WORKSPACE/rpmfactory/build-release-rpm.sh $url $validatedurl
 scp $ssh_opts ~/rpmbuild/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm ${user}@${koji_server}:/tmp/
 ssh $ssh_opts ${user}@${koji_server} sudo cp /tmp/rdo-temp-release-1.0-1.noarch.rpm $temppath
 ssh $ssh_opts ${user}@${koji_server} sudo createrepo $temppath

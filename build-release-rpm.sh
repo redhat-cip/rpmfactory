@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ $# != 1 ]; then
-    echo "Usage: $0 <url>" 1>&2
+if [ $# != 2 ]; then
+    echo "Usage: $0 <temp repo url> <validated repo url>" 1>&2
     exit 1
 fi
 
@@ -26,6 +26,12 @@ rm -rf \$RPM_BUILD_ROOT
 mkdir -p \$RPM_BUILD_ROOT/etc/yum.repos.d
 
 cat > \$RPM_BUILD_ROOT/etc/yum.repos.d/rdo-temp-release.repo <<EOF
+[validated]
+name=validated packages for RDO testing
+baseurl=$2
+enabled=1 
+gpgcheck=0 
+
 [temp]
 name=temporary packages for RDO testing
 baseurl=$1
