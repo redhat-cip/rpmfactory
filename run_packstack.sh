@@ -27,11 +27,13 @@ cd $HOME
 [ -d khaleesi ] || git clone https://github.com/redhat-openstack/khaleesi.git
 [ -d khaleesi-settings ] || git clone https://github.com/redhat-openstack/khaleesi-settings.git
 
-if [ ! -f .ssh/id_rsa ]; then
-    ssh-keygen -N '' -f .ssh/id_rsa
-    sudo cp .ssh/id_rsa.pub /root/.ssh/authorized_keys
-    sudo cp .ssh/id_rsa* /root/.ssh/
-fi
+#if [ ! -f .ssh/id_rsa ]; then
+#    ssh-keygen -N '' -f .ssh/id_rsa
+#    sudo cp .ssh/id_rsa.pub /root/.ssh/authorized_keys
+#    sudo cp .ssh/id_rsa* /root/.ssh/
+#fi
+cat .ssh/id_rsa.pub | sudo tee -a /root/.ssh/authorized_keys
+sudo cp .ssh/id_rsa* /root/.ssh/
 
 # install ksgen
 
