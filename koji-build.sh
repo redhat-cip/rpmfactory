@@ -31,11 +31,5 @@ if [ "$state" = "failed" ]; then
     exit 1
 fi
 if [ "$state" = "closed" ]; then
-    echo "Task $tid succeed. Fetching rpms ..."
-    pkgs=$(egrep rpm$ /tmp/out2 | egrep -v src.rpm$ | sed "s|.*$koji_internal_path||")
-    echo "$pkgs"
-    for pkg in $pkgs; do
-        echo "Fetching rpms $(basename "$pkg") ..."
-        curl "$koji_tasks_path/$pkg" -o $(basename "$pkg")
-    done
+    echo "Task $tid succeed."
 fi
