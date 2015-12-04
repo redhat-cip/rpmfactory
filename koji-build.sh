@@ -5,8 +5,12 @@ set -e
 srpm=$1
 dist='dist-centos7'
 koji_internal_path=/mnt/koji/work/tasks/
-koji_tasks_path='http://koji-ctrl.ring.enovance.com/kojifiles/work/tasks/'
-koji_ui_tasks_uri='http://koji-ctrl.ring.enovance.com/koji/taskinfo?taskID='
+koji_server='koji-ctrl.ring.enovance.com'
+koji_tasks_path="http://${koji_server}/kojifiles/work/tasks/"
+koji_ui_tasks_uri="http://${koji_server}/koji/taskinfo?taskID="
+user='centos'
+key=$SECRETKEY
+ssh_opts="-i ${key} -oStrictHostKeyChecking=no -oPasswordAuthentication=no -oKbdInteractiveAuthentication=no -oChallengeResponseAuthentication=no"
 
 echo "Start build of: $1"
 set +e
@@ -32,4 +36,18 @@ if [ "$state" = "failed" ]; then
 fi
 if [ "$state" = "closed" ]; then
     echo "Task $tid succeed."
+    pkgs=$(egrep rpm$ /tmp/out2 | egrep -v src.rpm$)
+    for pkg in $pkgs; do
+        temppath="/srv/mirror/rpmfactory/${ZUUL_PROJECT}/${ZUUL_REF}/el/7/x86_64/"
+        ssh $ssh_opts ${user}@${koji_server} sudo mkdir -p $temppath
+        ssh $ssh_opts ${user}@${koji_server} sudo cp $pkg $temppath
+    done
 fi
+
+url="http://${koji_server}/$(echo $temppath | sed 's|/srv||')"
+~/rpmfactory/build-release-rpm.sh $url
+scp $ssh_opts ~/rpmbuild/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm ${user}@${koji_server}:/tmp/
+ssh $ssh_opts ${user}@${koji_server} sudo cp /tmp/rdo-temp-release-1.0-1.noarch.rpm $temppath
+ssh $ssh_opts ${user}@${koji_server} sudo createrepo $temppath
+ssh $ssh_opts ${user}@${koji_server} sudo chcon -Rv --type=httpd_sys_content_t $temppath
+echo "URL temporary repository: ${url}"
