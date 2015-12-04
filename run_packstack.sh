@@ -9,7 +9,7 @@ set -ex
 
 # try to workaround conflicts between pip and rpm
 
-sudo pip uninstall pycrypto || :
+sudo pip uninstall -y pycrypto || :
 
 # install ansible
 
