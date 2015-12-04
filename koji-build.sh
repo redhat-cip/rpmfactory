@@ -2,7 +2,6 @@
 
 set -e
 
-srpm=$1
 dist='dist-centos7'
 koji_internal_path=/mnt/koji/work/tasks/
 koji_server='koji-ctrl.ring.enovance.com'
@@ -12,7 +11,13 @@ user='centos'
 key=$SECRETKEY
 ssh_opts="-i ${key} -oStrictHostKeyChecking=no -oPasswordAuthentication=no -oKbdInteractiveAuthentication=no -oChallengeResponseAuthentication=no"
 
-echo "Start build of: $1"
+rpmdev-setuptree
+spectool -g *.spec -C ~/rpmbuild/SOURCES
+rsync --exclude="*.spec" ./* ~/rpmbuild/SOURCES/
+rpmbuild -bs *.spec
+srpm=$(ls ~/rpmbuild/SRPMS/*.src.rpm)
+
+echo "Start build of: $srpm"
 set +e
 koji build --scratch "$dist" "$srpm" &> /tmp/out
 set -e
