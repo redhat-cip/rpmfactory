@@ -43,15 +43,15 @@ if [ "$state" = "closed" ]; then
     pkgs=$(egrep rpm$ /tmp/out2 | egrep -v src.rpm$)
     for pkg in $pkgs; do
         temppath="/srv/mirror/rpmfactory/${ZUUL_PROJECT}/${zuul_ref}/x86_64/"
-        ssh "$ssh_opts" ${user}@${koji_server} sudo mkdir -p $temppath
-        ssh "$ssh_opts" ${user}@${koji_server} sudo cp $pkg $temppath
+        ssh $ssh_opts ${user}@${koji_server} sudo mkdir -p $temppath
+        ssh $ssh_opts ${user}@${koji_server} sudo cp $pkg $temppath
     done
 fi
 
 url="http://${koji_server}/$(echo $temppath | sed 's|/srv||')"
 $WORKSPACE/rpmfactory/build-release-rpm.sh $url
-scp "$ssh_opts" ~/rpmbuild/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm ${user}@${koji_server}:/tmp/
-ssh "$ssh_opts" ${user}@${koji_server} sudo cp /tmp/rdo-temp-release-1.0-1.noarch.rpm $temppath
-ssh "$ssh_opts" ${user}@${koji_server} sudo createrepo $temppath
-ssh "$ssh_opts" ${user}@${koji_server} sudo chcon -Rv --type=httpd_sys_content_t $temppath
+scp $ssh_opts ~/rpmbuild/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm ${user}@${koji_server}:/tmp/
+ssh $ssh_opts ${user}@${koji_server} sudo cp /tmp/rdo-temp-release-1.0-1.noarch.rpm $temppath
+ssh $ssh_opts ${user}@${koji_server} sudo createrepo $temppath
+ssh $ssh_opts ${user}@${koji_server} sudo chcon -Rv --type=httpd_sys_content_t $temppath
 echo "URL temporary repository: ${url}"
