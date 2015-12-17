@@ -11,3 +11,4 @@
 * rights sur /mnt/koji (kojira)
  * setsebool -P httpd_can_network_connect_db=1 allow_httpd_anon_write=1 httpd_use_nfs=1
  * chcon -R -t public_content_rw_t /mnt/koji/*
+* http://etherpad.corp.redhat.com/koji-rdo
