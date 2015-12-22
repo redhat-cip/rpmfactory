@@ -14,6 +14,7 @@ EMAIL="fboucher@redhat.com"
 GERRITSF="ssh://%s@%s:29418/" % (USER, SF)
 ADMIN="admin"
 PASSWD="" # Admin password
+SYNCUSEREMAIL="root@rpmfactory.beta.rdoproject.org" # jenkinsync User
 
 if len(sys.argv) < 3:
     print "Usage:"
@@ -57,10 +58,12 @@ msf.deleteProject(sfdistgit)
 print "--> Create project mirror: %s" % name
 msf.createProject(name)
 msf.addUsertoProjectGroups(name, EMAIL, "ptl-group core-group")
+msf.addUsertoProjectGroups(name, SYNCUSEREMAIL, "core-group ptl-group")
 
 print "--> Create project distgit: %s" % sfdistgit
 msf.createProject(sfdistgit)
 msf.addUsertoProjectGroups(sfdistgit, EMAIL, "ptl-group core-group")
+msf.addUsertoProjectGroups(sfdistgit, SYNCUSEREMAIL, "core-group ptl-group")
 
 sfrdo.init_distgit(sfdistgit, distgit, SF, GERRITSF, workdir)
 sfrdo.init_mirror(name, mirror, upstream, SF, GERRITSF, workdir)
