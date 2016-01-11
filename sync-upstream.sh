@@ -46,12 +46,7 @@ git_url="git+ssh://${rpmfactory_user}@${rpmfactory_uri}:29418/${ZUUL_PROJECT}"
 pushd "${ZUUL_PROJECT}"
 
   if [ -n "${ZUUL_REF}" ]; then
-    if ! [ "${ZUUL_REF}" == 'master' ]; then
-      git checkout master
-    fi
-  else
-    echo '[ERROR] ZUUL_REF is not set'
-    exit
+    git checkout master
   fi
 
   echo "Local project (sync): ${git_url}"
