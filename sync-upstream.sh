@@ -21,9 +21,8 @@ if [ "x${DEBUG}" == "x1" ]; then
 fi
 
 rpmfactory_uri='rpmfactory.beta.rdoproject.org'
-openstack_uri='https://git.openstack.org/openstack'
-# root@rpmfactory.beta.rdoproject.org (in core-group of each projects, see sfrdoinit)
-rpmfactory_user='jenkinsync'
+# sfrdobender@rpmfactory.beta.rdoproject.org (in core-group of each projects, see python-sfrdo)
+rpmfactory_user='sfrdobender'
 
 if [ -z "${ZUUL_PROJECT}" ]; then
   echo '[ERROR] ZUUL_PROJECT is not set'
@@ -38,7 +37,7 @@ trap_handler () {
 }
 
 # Handle
-#trap trap_handler ERR
+trap trap_handler ERR
 
 # Clone RPMFactory Mirrors
 git_url="git+ssh://${rpmfactory_user}@${rpmfactory_uri}:29418/${ZUUL_PROJECT}"
@@ -49,12 +48,14 @@ pushd "${ZUUL_PROJECT}"
     git checkout master
   fi
 
+  upstream_url=$(sfrdo infos --name "${ZUUL_PROJECT}"|grep 'upstream is'|awk '{ print $4 }')
+
   echo "Local project (sync): ${git_url}"
-  echo "Upstream project    : ${openstack_uri}/${ZUUL_PROJECT}"
+  echo "Upstream project    : ${upstream_url}"
 
   # Configure git seetings (for gerrit)
-  git config user.username $rpmfactory_user
-  git remote add upstream "${openstack_uri}/${ZUUL_PROJECT}"
+  git config user.username "${rpmfactory_user}"
+  git remote add upstream "${upstream_url}"
 
   # Test push origin
   git remote -v|egrep -q origin'\s+.*\(push\)'
