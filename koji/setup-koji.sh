@@ -31,4 +31,7 @@ koji add-external-repo -p 30 -t dist-centos7-build dist-centos7-plus http://ftp.
 koji add-target dist-centos7 dist-centos7-build
 koji add-group-pkg dist-centos7-build build bash bzip2 coreutils cpio diffutils findutils gawk gcc grep sed gcc-c++ gzip info patch redhat-rpm-config rpm-build shadow-utils tar unzip util-linux-ng which make
 koji add-group-pkg dist-centos7-build srpm-build bash gnupg make redhat-rpm-config rpm-build shadow-utils wget rpmdevtools
-koji regen-repo dist-centos7-build
+
+#FIXME bug with regen-repo TypeError: 'int' object is not iterable
+#exit 1
+koji regen-repo dist-centos7-build || true
