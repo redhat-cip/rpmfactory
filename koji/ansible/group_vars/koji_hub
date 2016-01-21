@@ -1,15 +1,10 @@
 ---
-koji_hub_add_builders: true
-
 koji_hub_kojiadmins:
   - { name: 'kojiadmin' }
   - { name: 'sfadmin', email: 'softwarefactory@enovance.com' }
 
-koji_hub_issue_cert: true
-
+koji_hub_issue_cert: True
 koji_kojira_grant_repo: True
 koji_kojira_issue_cert: True
 koji_kojira_topdir: /mnt/koji
 koji_builder_hub_server: "http://{{ hostvars[groups['koji_hub'][0]]['inventory_hostname'] }}/kojihub"
-
-nfs_exports: { "/mnt/koji *(ro,sync,no_root_squash)" }

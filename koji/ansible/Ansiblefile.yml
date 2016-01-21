@@ -28,7 +28,3 @@
 - src: goozbach.EPEL
   name: epel
   path: roles
-
-- src: geerlingguy.nfs
-  name: nfs
-  path: roles

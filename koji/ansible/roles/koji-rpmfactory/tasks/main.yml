@@ -1,0 +1,8 @@
+---
+# tasks file for koji-rpmfactory
+
+- include: "install.yml"
+- include: "configure.yml"
+
+- name: "add builders"
+  include: "builders.yml"

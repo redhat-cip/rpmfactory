@@ -1,0 +1,17 @@
+---
+
+- name: Add and configure builders | Do add them to database
+  become: yes
+  become_user: kojiadmin
+  shell: "/usr/local/bin/setup-koji.sh {{ koji_rpmfactory_builder_name }} && touch /home/kojiadmin/.koji/.addbuilders.done"
+  args:
+    creates: /home/kojiadmin/.koji/.addbuilders.done
+  with_items: groups.koji_rpmfactory
+  tags:
+    - koji-rpmfactory
+    - kojiadmin-add-hosts
+
+- name: Fix rights on builder topdir
+  shell: "/bin/chcon -R -t public_content_rw_t {{ koji_builder_topdir }}"
+  tags:
+    - koji-rpmfactory

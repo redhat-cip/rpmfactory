@@ -7,7 +7,7 @@ stateOrProvinceName_default: 'Paris'
 localityName_default: 'Paris'
 organizationName_default: 'RedHat'
 organizationalUnitName: 'RCIP'
-CN: 'rcip-dev-koji01.ring.enovance.com'
+CN: 'rcip-dev.ring.enovance.com'
 ca_name: koji
 koji_ca_emailUser: softwarefactory
 koji_ca_emailDomain: enovance.com

@@ -1,0 +1,4 @@
+---
+# defaults file for koji-rpmfactory
+
+koji_rpmfactory_builder_name: 'koji-builder01'

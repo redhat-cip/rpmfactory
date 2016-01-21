@@ -1,0 +1,17 @@
+---
+
+- name: issue cert for koji-rpmfactory
+  shell: "{{ ca_root_path }}/certgen.sh {{ koji_rpmfactory_builder_name }}"
+  args:
+    creates: "{{ ca_root_path }}/certs/{{ koji_rpmfactory_builder_name }}.crt"
+    chdir: "{{ ca_root_path }}"
+  when: koji_hub_issue_cert
+  tags:
+    - koji-rpmfactory
+    - kojiadmin-add-hosts
+
+- name: "Ensure httpd is running"
+  service: name=httpd state=started enabled=yes
+  tags:
+    - koji-rpmfactory
+    - kojiadmin-add-hosts

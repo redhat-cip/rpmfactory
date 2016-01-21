@@ -1,0 +1,20 @@
+---
+
+- name: copy koji-setup script
+  copy: src={{item}} dest=/usr/local/bin/ owner=root group=root mode=0755
+  with_items:
+    - setup-koji.sh
+    - mirror-cloud.sh
+  tags:
+    - koji-rpmfactory
+
+- name: Patch createrepo using fedora version and install packages for rpmfactory | Install required Packages
+  yum: name={{item}} state=installed
+  when: ansible_distribution_major_version == '7'
+  with_items:
+    - https://kojipkgs.fedoraproject.org/packages/createrepo/0.10.3/3.fc21/noarch/createrepo-0.10.3-3.fc21.noarch.rpm
+    - wget
+    - rsync
+  tags:
+    - koji-rpmfactory
+    - builder
