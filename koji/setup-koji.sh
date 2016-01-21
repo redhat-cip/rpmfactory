@@ -1,13 +1,21 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Setup Koji builders/Repos/Targets
 
-for i in $(seq 1 2);
-do
-  koji add-host "koji-build0${i}" x86_64
-  koji add-host-to-channel "koji-build0${i}" createrepo
-  koji edit-host --capacity=6 "koji-build0${i}"
-done
+if [ "x${DEBUG}" == "x1" ]; then
+  set -x
+fi
+
+builder=$1
+
+if [ -z "${builder}" ]; then
+  echo "./${0} <builder>"
+  exit
+fi
+
+koji add-host "${builder}" x86_64
+koji add-host-to-channel "${builder}" createrepo
+koji edit-host --capacity=6 "${builder}"
 
 koji add-tag dist-centos7
 koji add-tag --parent dist-centos7 --arches "x86_64" dist-centos7-build
