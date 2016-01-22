@@ -1,4 +1,5 @@
 # This file won't be updated and must be updated manually
+# Test
 
 # Jobs
 # ====
@@ -30,18 +31,114 @@
     builders:
       - prepare-workspace
       - shell: |
+          # Tox update should be put in the slave preparation script
+          env
+          sudo pip install -U tox
           cd $ZUUL_PROJECT
-          wget "http://git.openstack.org/cgit/openstack/requirements/plain/upper-constraints.txt?h=stable/liberty" -O upper-constraints.txt
-          run-tox.sh py27
+          [ -f setup.cfg ] && sed 's/^version =.*//' -i setup.cfg
+          case $ZUUL_PROJECT in
+            nova|neutron|ceilometer )
+              tox -epy27
+            ;;
+            keystone )
+              # https://bugs.launchpad.net/keystone/+bug/1505374
+              # Yest it's ugly...
+              git config user.email "jenkins@localhost.tld"
+              git config user.name "Jenkins"
+              git fetch https://review.openstack.org/openstack/keystone refs/changes/00/233800/1 && git cherry-pick FETCH_HEAD
+              tox -epy27
+            ;;
+            glance )
+              ./run_tests.sh --concurrency 4 -V -P
+            ;;
+            * )
+              wget "http://git.openstack.org/cgit/openstack/requirements/plain/upper-constraints.txt?h=stable/liberty" -O upper-constraints.txt
+              run-tox.sh py27
+            ;;
+          esac
     triggers:
       - zuul
     node: koji-centos-7
 
-# Projects
-# ========
-- project:
-    name: zuul-demo
-    node: master
-    jobs:
-      - '{name}-unit-tests'
-      - '{name}-functional-tests'
+- job:
+    name: 'upstream-update'
+    defaults: global
+    builders:
+      - prepare-workspace
+      - shell: |
+          # Manage SSH keyring for git+push on rpmfactory
+          chmod 600 $SECRETKEY
+          eval $(ssh-agent)
+          ssh-add $SECRETKEY
+          echo -e "Host *\n  StrictHostKeyChecking no" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          # Prepare sfrdo
+          git clone http://softwarefactory-project.io/r/p/python-sfrdo.git --depth 1
+          # python-virtualenv installed in the next relase
+          # http://softwarefactory-project.io/r/gitweb?p=software-factory.git;a=blob_plain;f=image/packages/rpm_centos.txt;hb=HEAD
+          pushd python-sfrdo
+            virtualenv ../sfrdo-venv
+            . ../sfrdo-venv/bin/activate
+            pip install -r requirements.txt
+            python setup.py install
+          popd
+          # Run script
+          sfrdo sync_repo --type All
+    wrappers:
+      - credentials-binding:
+        - file:
+           credential-id: d3e139ef-cd37-4395-b4f0-2d403acbf727
+           variable: SECRETKEY
+    triggers:
+      - zuul
+    node: koji-centos-7
+
+- job:
+    name: 'distgit-update'
+    defaults: global
+    builders:
+      - prepare-workspace
+      - shell: |
+          # Manage SSH keyring for git+push on rpmfactory
+          chmod 600 $SECRETKEY
+          eval $(ssh-agent)
+          ssh-add $SECRETKEY
+          echo -e "Host *\n  StrictHostKeyChecking no" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+          # Prepare sfrdo
+          git clone http://softwarefactory-project.io/r/p/python-sfrdo.git --depth 1
+          # python-virtualenv installed in the next relase
+          # http://softwarefactory-project.io/r/gitweb?p=software-factory.git;a=blob_plain;f=image/packages/rpm_centos.txt;hb=HEAD
+          pushd python-sfrdo
+            virtualenv ../sfrdo-venv
+            . ../sfrdo-venv/bin/activate
+            pip install -r requirements.txt
+            python setup.py install
+          popd
+          # Run script
+          sfrdo sync_repo --type All --distgit
+    wrappers:
+      - credentials-binding:
+        - file:
+           credential-id: d3e139ef-cd37-4395-b4f0-2d403acbf727
+           variable: SECRETKEY
+    triggers:
+      - zuul
+    node: koji-centos-7
+
+- job:
+    name: 'delorean-ci'
+    defaults: global
+    builders:
+      - prepare-workspace
+      - shell: |
+          git clone https://review.gerrithub.io/openstack-packages/delorean --depth 1
+          cd  delorean
+          if [ -n "$GERRIT_REFSPEC" ]; then
+            git fetch https://review.gerrithub.io/openstack-packages/delorean $GERRIT_REFSPEC && git checkout FETCH_HEAD
+          fi
+          mkdir -p logs
+          timeout --signal=SIGKILL 3600 ./scripts/run_tests.sh
+    triggers:
+      - zuul
+    node: koji-centos-7
