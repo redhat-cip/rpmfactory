@@ -3,7 +3,7 @@
 set -e
 
 dist='dist-centos7'
-koji_server='koji-ctrl.ring.enovance.com'
+koji_server='koji-rpmfactory.ring.enovance.com'
 koji_ui_tasks_uri="http://${koji_server}/koji/taskinfo?taskID="
 user='centos'
 key=$SECRETKEY
@@ -11,12 +11,16 @@ ssh_opts="-i ${key} -oStrictHostKeyChecking=no -oPasswordAuthentication=no -oKbd
 zuul_ref=$(echo $ZUUL_REF |awk -F/ '{print $NF}')
 
 rpmdev-setuptree
-spectool -g *.spec -C ~/rpmbuild/SOURCES
+spectool -g ./*.spec -C ~/rpmbuild/SOURCES
 rsync --exclude="*.spec" ./* ~/rpmbuild/SOURCES/
-rpmbuild -bs *.spec
+rpmbuild -bs ./*.spec
 srpm=$(ls ~/rpmbuild/SRPMS/*.src.rpm)
 
 echo "Start build of: $srpm"
+# Note: (sbadia) If you don't use a scratch build, you must register your package
+# before. Using for example:
+#   $ koji add-pkg --owner kojiadmin dist-centos7 sf-sshpubkeys
+#   $ koji build dist-centos7 /tmp/sf-sshpubkeys-0.1-1.el7.centos.src.rpm
 set +e
 koji build --scratch "$dist" "$srpm" &> /tmp/out
 set -e
