@@ -22,6 +22,10 @@
   roles:
     - koji-web
 
+- hosts: mirror_rpmfactory
+  roles:
+    - mirror-rpmfactory
+
 - hosts: koji_builder
   roles:
     - koji-builder

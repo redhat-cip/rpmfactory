@@ -1,0 +1,9 @@
+---
+
+- name: Ensure httpd is running
+  service: name=httpd state=started enabled=yes
+  tags:
+    - mirror-rpmfactory
+
+- name: Copy SSH keys to centos user (nodepool and jenkins also)
+  copy: src=authorized_keys dest=/home/centos/.ssh/authorized_keys owner=centos group=centos mode=0600
