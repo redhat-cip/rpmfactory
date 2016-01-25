@@ -1,0 +1,24 @@
+
+# Step1/ Start the stack
+
+# Put SF image in glance
+SF_VER=2.1.4
+wget http://46.231.133.241:8080/v1/AUTH_sf/sf-images/softwarefactory-C7.0-${SF_VER}.img.qcow2
+openstack image create --disk-format qcow2 --file softwarefactory-C7.0-${SF_VER}.img.qcow2  sf-${SF_VER}
+
+SF_IMG_UID=$(openstack image show sf-${SF_VER} | grep ' id ' | awk '{ print $4 }')
+
+# Make sure id_rsa keypair exist:
+openstack keypair create --public-key ~/.ssh/id_rsa.pub id_rsa
+
+# Start the stack
+heat stack-create --template-file rpmfactory.hot.yaml -P "image_id=${SF_IMG_UID};" rpmfactory
+
+
+# Wait for the stack to finish and
+heat stack-show rpmfactory | grep 'Public address of .*\:'
+
+# Step2/ Configure koji
+# Step3/ Import sf config
+# Step4/ Import rdo project
+# Step5/ Validate ?
