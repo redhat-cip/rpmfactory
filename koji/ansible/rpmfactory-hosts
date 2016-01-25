@@ -1,0 +1,17 @@
+[mirror_rpmfactory]
+rdo-repositories.ring.enovance.com
+
+[koji_db]
+koji-rpmfactory.ring.enovance.com
+
+[koji_ca]
+koji-rpmfactory.ring.enovance.com
+
+[koji_hub]
+koji-rpmfactory.ring.enovance.com
+
+[koji_web]
+koji-rpmfactory.ring.enovance.com
+
+[koji_builder]
+koji-rpmfactory.ring.enovance.com
