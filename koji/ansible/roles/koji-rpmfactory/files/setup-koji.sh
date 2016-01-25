@@ -21,7 +21,7 @@ koji add-tag dist-centos7
 koji add-tag --parent dist-centos7 --arches "x86_64" dist-centos7-build
 
 # external-repo order is important (koji dismiss epoch and version priority)
-koji add-external-repo -p 5 -t dist-centos7-build dist-centos7-rdo http://localhost/mirror/centos/7/cloud/\$arch/openstack-liberty/
+koji add-external-repo -p 5 -t dist-centos7-build dist-centos7-rdo http://rdo-repositories.ring.enovance.com/mirror/centos/7/cloud/\$arch/openstack-liberty/
 koji add-external-repo -p 10 -t dist-centos7-build dist-centos7-repo-updates http://ftp.free.fr/mirrors/ftp.centos.org/7/updates/\$arch/
 koji add-external-repo -p 15 -t dist-centos7-build dist-centos7-repo http://ftp.free.fr/mirrors/ftp.centos.org/7/os/\$arch/
 koji add-external-repo -p 20 -t dist-centos7-build dist-centos7-epel http://epel.mirrors.ovh.net/epel/7/\$arch/

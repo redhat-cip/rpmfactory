@@ -1,20 +1,86 @@
 ---
 
-- name: issue cert for koji-rpmfactory
-  shell: "{{ ca_root_path }}/certgen.sh {{ koji_rpmfactory_builder_name }}"
+- name: Issue cert for koji-rpmfactory - koji-builder01
+  shell: "{{ ca_root_path }}/certgen.sh koji-builder01"
   args:
-    creates: "{{ ca_root_path }}/certs/{{ koji_rpmfactory_builder_name }}.crt"
+    creates: "{{ ca_root_path }}/certs/koji-builder01.crt"
     chdir: "{{ ca_root_path }}"
   when: koji_hub_issue_cert
   tags:
     - koji-rpmfactory
     - kojiadmin-add-hosts
 
-- name: "Ensure httpd is running"
+- name: Create /srv/.koji
+  file: path=/srv/.koji state=directory mode=0750
+  tags:
+    - koji-jenkins
+
+- name: Issue cert for jenkins
+  shell: "{{ ca_root_path }}/certgen.sh jenkins"
+  args:
+    creates: "{{ ca_root_path }}/certs/jenkins.crt"
+    chdir: "{{ ca_root_path }}"
+  tags:
+    - koji-jenkins
+
+- name: Copy kojiadmin pem file to /srv/.koji/client.crt
+  shell: "cp -p {{ ca_root_path }}/pems/jenkins.pem /srv/.koji/client.crt && chmod 644 /srv/.koji/client.crt"
+  args:
+    creates: "/srv/.koji/client.crt"
+  tags:
+    - koji-jenkins
+
+- name: Copy CA cert to /srv/.koji/clientca.crt
+  shell: "cp {{ ca_root_path }}/koji_ca_cert.crt /srv/.koji/clientca.crt"
+  args:
+    creates: "/srv/.koji/clientca.crt"
+  tags:
+    - koji-jenkins
+
+- name: Copy CA cert to /srv/.koji/serverca.crt
+  shell: "cp {{ ca_root_path }}/koji_ca_cert.crt /srv/.koji/serverca.crt"
+  args:
+    creates: "/srv/.koji/serverca.crt"
+  tags:
+    - koji-jenkins
+
+- name: Make jenkins tar to send to nodepool
+  shell: "tar cvzf jenkins-koji.tgz .koji/client.crt .koji/clientca.crt .koji/serverca.crt"
+  args:
+    creates: "/srv/jenkins-koji.tgz"
+    chdir: "/srv"
+  tags:
+    - koji-jenkins
+
+- name: Ensure httpd is running
   service: name=httpd state=started enabled=yes
   tags:
     - koji-rpmfactory
     - kojiadmin-add-hosts
 
+- name: Create /var/www/html/conf/
+  file: path=/var/www/html/conf state=directory mode=0755
+  tags:
+    - koji-jenkins
+
+- name: Copy Koji configuration for jenkins user
+  copy: src=koji.conf dest=/var/www/html/conf/koji.conf owner=root group=root mode=0644
+  tags:
+    - koji-jenkins
+
+- name: Copy jenkins koji tgz to httpd directory
+  shell: "cp /srv/jenkins-koji.tgz /var/www/html/conf/"
+  args:
+    creates: "/var/www/html/conf/jenkins-koji.tgz"
+  tags:
+    - koji-jenkins
+
+- name: Fix rights on conf directory
+  shell: "/bin/chcon -R -t public_content_rw_t /var/www/html/conf && touch /srv/.koji/.rightconf.done"
+  args:
+    creates: /srv/.koji/.rightconf.done
+  tags:
+    - koji-rpmfactory
+
 - name: Copy SSH keys to centos user (nodepool and jenkins also)
-  copy: src=authorized_keys dst=/home/centos/.ssh/authorized_keys owner=centos group=centos mode=0600
+  copy: src=authorized_keys dest=/home/centos/.ssh/authorized_keys owner=centos group=centos mode=0600
