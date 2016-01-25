@@ -1,0 +1,233 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Heat Rpm Factory
+
+parameters:
+  key_name:
+    type: string
+    description:  Name of the KeyPair to enable SSH access
+    default: id_rsa
+  domain:
+    type: string
+    description: Hostname of the instances
+    default: rpmfactory.sftests.com
+  flavor:
+    type: string
+    description: Flavor of the instance
+    default: m1.medium
+  baseimage_id:
+    type: string
+    description: Centos image ID (default from rcip-dev)
+    default: 6a8977f1-ad88-4ca1-bdf9-a7464fcf435e
+  image_id:
+    type: string
+    description: SF image ID (deafult is 2.1.4 from rcip-dev)
+    default: 17e6c98e-6482-4ace-b174-48ac76ec01c5
+  sf_root_size:
+    type: string
+    description: Root disk size of the instance
+    default: 10
+  nameservers:
+    type: comma_delimited_list
+    description: Nameserver IPs used by VMs
+    default: "8.8.8.8,8.8.4.4"
+  ext_net_uuid:
+    type: string
+    description: The UUID of the external net (default from rcip-dev)
+    default: 0f25616e-387f-49c5-9b4c-abaefc1d1c12
+  sg_admin_cidr:
+    type: string
+    description: From Ip range to access the instance by ssh
+    default: 0.0.0.0/0
+  sg_user_cidr:
+    type: string
+    description: From Ip range to access user services of SF
+    default: 0.0.0.0/0
+  admin_password:
+    type: string
+    default: userpass
+
+resources:
+  sf_net:
+    type: OS::Neutron::Net
+
+  sf_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: sf_net }
+      cidr: 192.168.240.0/24
+      enable_dhcp: true
+      dns_nameservers: { get_param: nameservers }
+
+  sf_router:
+    type: OS::Neutron::Router
+
+  sf_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: sf_router }
+      network_id: { get_param: ext_net_uuid }
+
+  sf_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: sf_router }
+      subnet_id: { get_resource: sf_subnet }
+
+  sf_ext_secgroup_admin:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules: [
+        {remote_ip_prefix: { get_param: sg_admin_cidr },
+         protocol: tcp,
+         port_range_min: 22,
+         port_range_max: 22,},
+        {remote_ip_prefix: { get_param: sg_admin_cidr },
+         protocol: icmp,}
+        ]
+
+  sf_ext_secgroup_http:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules: [
+        {remote_ip_prefix: { get_param: sg_user_cidr },
+         protocol: tcp,
+         port_range_min: 80,
+         port_range_max: 80},
+        {remote_ip_prefix: { get_param: sg_user_cidr },
+         protocol: tcp,
+         port_range_min: 443,
+         port_range_max: 443},
+        ]
+
+  sf_ext_secgroup_swarm_slave:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules: [
+        {remote_ip_prefix: { get_param: sg_user_cidr },
+         protocol: tcp,
+         port_range_min: 8080,
+         port_range_max: 8080},
+        {remote_ip_prefix: { get_param: sg_user_cidr },
+         protocol: tcp,
+         port_range_min: 45452,
+         port_range_max: 45452},
+        ]
+
+  sf_ext_secgroup_gerrit_ssh:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules: [
+        {remote_ip_prefix: { get_param: sg_user_cidr },
+         protocol: tcp,
+         port_range_min: 29418,
+         port_range_max: 29418},
+        ]
+
+  sf_neutron_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: sf_net }
+      security_groups: [ { get_resource: sf_ext_secgroup_gerrit_ssh },
+                         { get_resource: sf_ext_secgroup_http },
+                         { get_resource: sf_ext_secgroup_swarm_slave },
+                         { get_resource: sf_ext_secgroup_admin },
+                         ]
+
+  koji_neutron_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: sf_net }
+      security_groups: [ { get_resource: sf_ext_secgroup_http },
+                         { get_resource: sf_ext_secgroup_admin },
+                         ]
+
+  sf_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      port_id: { get_resource: sf_neutron_port }
+      floating_network_id: { get_param: ext_net_uuid }
+
+  koji_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      port_id: { get_resource: koji_neutron_port }
+      floating_network_id: { get_param: ext_net_uuid }
+
+  sf_volume:
+    type: OS::Cinder::Volume
+    properties:
+      name  : "sf"
+      image : { get_param: image_id }
+      size  : { get_param: sf_root_size }
+
+  koji_volume:
+    type: OS::Cinder::Volume
+    properties:
+      name  : "koji"
+      image : { get_param: baseimage_id }
+      size  : { get_param: sf_root_size }
+
+  koji_instance:
+    type: OS::Nova::Server
+    properties:
+      name:
+        str_replace:
+          template: koji.domain
+          params: {domain: {get_param: domain}}
+      block_device_mapping: [{ device_name: "vda", volume_id : { get_resource : koji_volume } }]
+      flavor: { get_param: flavor }
+      key_name: { get_param: key_name }
+      networks:
+        - port: { get_resource: koji_neutron_port }
+
+  sf_instance:
+    type: OS::Nova::Server
+    properties:
+      name:
+        str_replace:
+          template: managesf.domain
+          params: {domain: {get_param: domain}}
+      block_device_mapping: [{ device_name: "vda", volume_id : { get_resource : sf_volume } }]
+      flavor: { get_param: flavor }
+      key_name: { get_param: key_name }
+      networks:
+        - port: { get_resource: sf_neutron_port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #cloud-config
+            output: {all: '| tee -a /var/log/cloud-init-output.log'}
+            write_files:
+            - content: |
+               #!/bin/bash
+               set -x
+               sed -i 's/admin_password:.*/admin_password: adminpwd/' /etc/puppet/hiera/sf/sfconfig.yaml
+               sed -i 's/^fqdn:.*/fqdn: domain/' /etc/puppet/hiera/sf/sfconfig.yaml
+               sfconfig.sh
+              path: /root/startup.sh
+            runcmd:
+              - chmod +x /root/startup.sh
+              - /root/startup.sh
+              - rm -f /root/startup.sh
+          params:
+            domain: {get_param: domain}
+            adminpwd: {get_param: admin_password}
+
+outputs:
+  koji_public_address:
+    description: Public address of koji
+    value:
+      str_replace:
+        template: "Public address of the koji instance: host"
+        params:
+          host: { get_attr: [koji_floating_ip, floating_ip_address] }
+  sf_public_address:
+    description: Public address of SF
+    value:
+      str_replace:
+        template: "Public address of the SF instance: host"
+        params:
+          host: { get_attr: [sf_floating_ip, floating_ip_address] }
