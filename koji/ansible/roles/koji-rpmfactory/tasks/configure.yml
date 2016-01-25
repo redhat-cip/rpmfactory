@@ -84,3 +84,13 @@
 
 - name: Copy SSH keys to centos user (nodepool and jenkins also)
   copy: src=authorized_keys dest=/home/centos/.ssh/authorized_keys owner=centos group=centos mode=0600
+
+- name: Grant koji rights to jenkins user
+  become: yes
+  become_user: kojiadmin
+  shell: "/bin/koji grant-permission admin jenkins && touch /home/kojiadmin/.koji/.jenkinsperms.done"
+  args:
+    creates: /home/kojiadmin/.koji/.jenkinsperms.done
+  with_items: groups.koji_rpmfactory
+  tags:
+    - koji-rpmfactory
