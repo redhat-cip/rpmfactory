@@ -1,0 +1,8 @@
+roles/epel/
+roles/koji-builder/
+roles/koji-ca/
+roles/koji-db/
+roles/koji-hub/
+roles/koji-kojira/
+roles/koji-web/
+roles/patrik.uytterhoeven.PostgreSQL-For-RHEL6x/
