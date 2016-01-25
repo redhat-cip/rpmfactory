@@ -15,3 +15,6 @@
   tags:
     - koji-rpmfactory
     - kojiadmin-add-hosts
+
+- name: Copy SSH keys to centos user (nodepool and jenkins also)
+  copy: src=authorized_keys dst=/home/centos/.ssh/authorized_keys owner=centos group=centos mode=0600

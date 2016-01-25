@@ -1,6 +1,6 @@
 ---
 
-- name: copy koji-setup script
+- name: Copy koji-setup and mirror scripts
   copy: src={{item}} dest=/usr/local/bin/ owner=root group=root mode=0755
   with_items:
     - setup-koji.sh
@@ -18,3 +18,18 @@
   tags:
     - koji-rpmfactory
     - builder
+
+- name: Create directory for RDO mirror
+  file: path=/srv/mirror/centos/7/cloud state=directory mode=0755
+
+- name: Create the symlink for HTTP access
+  file:
+    src: /var/www/html/mirror
+    dst: /srv/mirror
+    state: link
+
+- name: Populate or update RDO mirror
+  command: /usr/local/bin/mirror-cloud.sh
+  args:
+    chdir: /srv/mirror/centos/7/cloud
+    creates: /srv/mirror/centos/7/cloud/x86_64/openstack-liberty
