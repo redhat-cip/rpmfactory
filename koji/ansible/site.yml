@@ -28,5 +28,5 @@
 
 - hosts: koji_builder
   roles:
-    - koji-builder
     - koji-rpmfactory
+    - koji-builder
