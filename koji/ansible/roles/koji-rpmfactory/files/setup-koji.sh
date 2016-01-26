@@ -29,6 +29,10 @@ koji add-external-repo -p 25 -t dist-centos7-build dist-centos7-extras http://ft
 koji add-external-repo -p 30 -t dist-centos7-build dist-centos7-plus http://ftp.free.fr/mirrors/ftp.centos.org/7/centosplus/\$arch/
 
 koji add-target dist-centos7 dist-centos7-build
+
+koji add-group dist-centos7-build build
+koji add-group dist-centos7-build srpm-build
+
 koji add-group-pkg dist-centos7-build build bash bzip2 coreutils cpio diffutils findutils gawk gcc grep sed gcc-c++ gzip info patch redhat-rpm-config rpm-build shadow-utils tar unzip util-linux-ng which make
 koji add-group-pkg dist-centos7-build srpm-build bash gnupg make redhat-rpm-config rpm-build shadow-utils wget rpmdevtools
 
