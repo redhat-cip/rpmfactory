@@ -15,3 +15,6 @@ koji.rpmfactory.sftests.com
 
 [koji_builder]
 koji.rpmfactory.sftests.com
+
+[managesf]
+managesf.rpmfactory.sftests.com
