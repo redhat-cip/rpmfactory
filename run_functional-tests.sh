@@ -77,8 +77,12 @@ cat ~/.ssh/id_rsa.pub | tee koji/ansible/roles/mirror-rpmfactory/files/authorize
 # Start koji/ansible playbook
 (cd koji/ansible; exec ansible-playbook -i preprod-hosts site.yml --diff --extra-vars "CN=koji.rpmfactory.sftests.com")
 
+# Start sf nodepool specialisation
+(cd nodepool/ansible; exec ansible-playbook -i preprod-hosts site.yml --extra-vars "os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME}")
+
+
+
 # TODO:
-# call sfconfig.sh
 # configure config repos
 # run sf integration test to setup nodepool and swift
 # import rdo projects

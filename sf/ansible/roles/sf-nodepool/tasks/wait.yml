@@ -1,0 +1,31 @@
+---
+
+- name: Wait for image build start
+  wait_for: path=/var/log/nodepool/nodepool.log search_regex="Creating image.*{{ image_name }}"
+
+- name: "Check image is building"
+  command: nodepool image-list
+  register: imagelist
+  failed_when: imagelist.stdout.find("{{ image_name }}") == -1
+
+- name: "Wait for server to be ACTIVE"
+  wait_for: path=/var/log/nodepool/debug.log timeout=900 search_regex="Status of server in default .* ACTIVE"
+
+- name: "Wait for ssh connection to be okay for image build"
+  wait_for: path=/var/log/nodepool/debug.log timeout=900 search_regex="{{ image_name }}.* access okay"
+
+- name: "Wait for image build to succeed: Base setup done."
+  wait_for: path=/var/log/nodepool/nodepool.log timeout=900 search_regex="nodepool.image.build.default.{{ image_name }}.*Base setup done."
+
+- name: "Wait for snapshot to be ready"
+  wait_for: path=/var/log/nodepool/nodepool.log timeout=900 search_regex="SnapshotImageUpdater.* Image {{ image_name }}.* in default is ready"
+- name: "Check slave is present"
+  shell: nodepool list | grep "{{ node_label }}" | head -n 1 | awk '{ print $2 }'
+  register: node_id
+  failed_when: node_id.stdout == ""
+
+- name: "Wait for node to be ready"
+  wait_for: path=/var/log/nodepool/nodepool.log search_regex="Node id. {{ node_id.stdout }} is ready"
+
+- name: "Wait for node to be added to jenkins"
+  wait_for: path=/var/log/nodepool/nodepool.log search_regex="Node id. {{ node_id.stdout }} added to jenkins"

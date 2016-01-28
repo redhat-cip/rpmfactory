@@ -1,0 +1,35 @@
+- name: Check nodepool sfconfig
+  command: "grep -q {{ os_username }} /etc/nodepool/nodepool.yaml"
+  register: provider_config
+  failed_when: False
+
+- name: Update sfconfig
+  when: provider_config.rc != 0
+  command: >
+    hieraedit.py --yaml /etc/puppet/hiera/sf/sfconfig.yaml --eval nodepool "{ 'disabled': False,
+    'providers': [{
+        'name': 'default',
+        'auth-url':   '{{ os_auth_url }}',
+        'username':   '{{ os_username }}',
+        'password':   '{{ os_password }}',
+        'project-id': '{{ os_tenant_name }}',
+        'pool':       '{{ pool }}',
+        'boot-timeout': 120,
+        'max-servers': 2,
+        'rate': 10.0,
+      }]}"
+
+- name: Restart sfconfig
+  when: provider_config.rc != 0
+  command: sfconfig.sh
+
+- name: Check configuration got updated
+  command: grep -q {{ os_username }} /etc/puppet/hiera/sf/sfconfig.yaml
+
+- name: Check service is running
+  command: systemctl status nodepool
+  register: daemon
+
+- name: Check for errors
+  fail: msg='Nodepool service is not happy'
+  when: daemon.stdout.lower().find("fail") != -1

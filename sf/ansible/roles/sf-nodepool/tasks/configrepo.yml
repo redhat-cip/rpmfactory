@@ -1,0 +1,54 @@
+---
+- name: Reset config
+  command: chdir=config {{ item }}
+  with_items:
+    - git fetch --all
+    - git reset --hard origin/master --
+
+- name: Check if image is already defined
+  command: "grep -q '{{ node_label }}' config/nodepool/labels.yaml"
+  register: sfconfiged
+  failed_when: False
+
+- name: Adds nodepool image
+  when: sfconfiged.rc
+  command: >
+    hieraedit.py --yaml config/nodepool/images.yaml --eval 0 "{
+        'provider': 'default',
+        'images': [{
+            'name': '{{ image_name }}',
+            'base-image': '{{ base_image_name }}',
+            'username': 'centos',
+            'private-key': '/var/lib/jenkins/.ssh/id_rsa',
+            'setup': '{{ image_config_script }}',
+            'min-ram': 2048,
+        }]
+    }"
+
+- name: Adds nodepool label
+  when: sfconfiged.rc
+  command: >
+    hieraedit.py --yaml config/nodepool/labels.yaml --eval labels "[{
+        'name': '{{ node_label }}',
+        'image': '{{ image_name }}',
+        'min-ready': 1,
+        'providers': [{'name': 'default'}]
+    }]"
+
+- name: Copy nodepool-demo image script
+  when: sfconfiged.rc
+  copy: src={{ image_config_script }} dest=config/nodepool/{{ image_config_script }} mode="u=rwx,g=rx,o=rx"
+
+- name: Update change
+  when: sfconfiged.rc
+  command: chdir=config  {{ item }}
+  with_items:
+      - 'git add nodepool/{{ image_config_script }}'
+      - 'git commit -a -m "Adds {{ node_label }} node label"'
+      - 'submit_and_wait.py --approve'
+
+- command: chdir=config cat .git/refs/heads/master
+  register: commitsha
+
+- name: Wait for config-update post job
+  wait_for: path=/var/lib/jenkins/jobs/config-update/builds/lastStableBuild/log search_regex={{ commitsha.stdout }}
