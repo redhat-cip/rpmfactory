@@ -11,7 +11,7 @@ ansible --version
 # install tox and gcc/python-dev to be able to build native python
 # modules
 sudo yum install -y koji wget rpmdevtools rpm-build redhat-rpm-config
-sudo yum install -y python-devel gcc patch libffi-devel mock
+sudo yum install -y python-devel gcc patch libffi-devel mock rsync createrepo
 sudo pip install -U tox==1.6.1
 
 # swap
@@ -20,9 +20,9 @@ sudo chmod 600 /srv/swap
 sudo mkswap /srv/swap
 grep swap /etc/fstab || echo "/srv/swap none swap sw 0 0" | sudo tee -a /etc/fstab
 
-# Koji configuration and certs (insecure)
-sudo wget http://192.168.42.27/conf/koji.conf -O /etc/koji.conf
-sudo wget http://192.168.42.27/conf/jenkins-koji.tgz -O /srv/jenkins-koji.tgz
+# Koji configuration and certs (completly insecure)
+sudo wget http://koji-rpmfactory.ring.enovance.com/conf/koji.conf -O /etc/koji.conf
+sudo wget http://koji-rpmfactory.ring.enovance.com/conf/jenkins-koji.tgz -O /srv/jenkins-koji.tgz
 sudo tar xvzf /srv/jenkins-koji.tgz -C /home/jenkins/
 sudo chown -R jenkins /home/jenkins/.koji
 
