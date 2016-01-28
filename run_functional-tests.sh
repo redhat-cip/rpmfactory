@@ -67,19 +67,15 @@ for h in koji.rpmfactory.sftests.com managesf.rpmfactory.sftests.com; do
 done
 
 # Fix ansible hardcoded value for tests
-sed -i koji/ansible/roles/koji-rpmfactory/files/koji.conf -e 's/koji-rpmfactory.ring.enovance.com/koji.rpmfactory.sftests.com/'
-cat ~/.ssh/id_rsa.pub | tee koji/ansible/roles/mirror-rpmfactory/files/authorized_keys > koji/ansible/roles/koji-rpmfactory/files/authorized_keys
+sed -i ansible/roles/koji-rpmfactory/files/koji.conf -e 's/koji-rpmfactory.ring.enovance.com/koji.rpmfactory.sftests.com/'
+cat ~/.ssh/id_rsa.pub | tee ansible/roles/mirror-rpmfactory/files/authorized_keys > ansible/roles/koji-rpmfactory/files/authorized_keys
 
 
 # Install ansible galaxies
-(cd koji/ansible; exec ansible-galaxy install -r Ansiblefile.yml --force)
+(cd ansible; exec ansible-galaxy install -r Ansiblefile.yml --force)
 
-# Start koji/ansible playbook
-(cd koji/ansible; exec ansible-playbook -i preprod-hosts site.yml --diff --extra-vars "CN=koji.rpmfactory.sftests.com")
-
-# Start sf nodepool specialisation
-(cd nodepool/ansible; exec ansible-playbook -i preprod-hosts site.yml --extra-vars "os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME}")
-
+# Start rpmfactory playbook
+(cd ansible; exec ansible-playbook -i preprod-hosts site.yml --diff --extra-vars "CN=koji.rpmfactory.sftests.com os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME}")
 
 
 # TODO:
