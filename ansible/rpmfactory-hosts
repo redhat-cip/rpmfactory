@@ -15,3 +15,6 @@ koji-rpmfactory.ring.enovance.com
 
 [koji_builder]
 koji-rpmfactory.ring.enovance.com
+
+[managesf]
+rpmfactory.ring.enovance.com
