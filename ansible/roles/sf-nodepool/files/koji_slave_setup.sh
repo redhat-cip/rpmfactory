@@ -4,7 +4,7 @@
 
 # install ansible
 sudo yum install -y epel-release
-sudo yum install -y python-crypto git python-pip
+sudo yum install -y git python-pip
 sudo pip install -U ansible==1.9.2
 ansible --version
 
