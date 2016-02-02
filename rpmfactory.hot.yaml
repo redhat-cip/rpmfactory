@@ -22,8 +22,8 @@ parameters:
     default: 6a8977f1-ad88-4ca1-bdf9-a7464fcf435e
   image_id:
     type: string
-    description: SF image ID (deafult is 2.1.4 from rcip-dev)
-    default: 17e6c98e-6482-4ace-b174-48ac76ec01c5
+    description: SF image ID (deafult is 2.1.5 from rcip-dev)
+    default: bb013d04-fe4e-4a89-8448-5954beb72f22
   sf_root_size:
     type: string
     description: Root disk size of the instance
@@ -216,6 +216,30 @@ resources:
             domain: {get_param: domain}
             adminpwd: {get_param: admin_password}
 
+  slave_net:
+    type: OS::Neutron::Net
+
+  slave_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: slave_net }
+      cidr: "10.8.1.0/24"
+      dns_nameservers: [ "8.8.8.8", "8.8.4.4" ]
+      ip_version: 4
+
+  slave_router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info:
+        network: { get_param: ext_net_uuid }
+
+  slave_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: slave_router }
+      subnet: { get_resource: slave_subnet }
+
+
 outputs:
   koji_public_address:
     description: Public address of koji
@@ -231,3 +255,10 @@ outputs:
         template: "Public address of the SF instance: host"
         params:
           host: { get_attr: [sf_floating_ip, floating_ip_address] }
+  slave_network:
+    description: slave network
+    value:
+      str_replace:
+        template: "Nodepool slave network: netname"
+        params:
+          netname: { get_attr: [slave_net, name] }
