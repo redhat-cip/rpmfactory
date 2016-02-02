@@ -14,6 +14,7 @@
         'password':   '{{ os_password }}',
         'project-id': '{{ os_tenant_name }}',
         'pool':       '{{ pool }}',
+        'network':    '{{ nodepool_net }}',
         'boot-timeout': 120,
         'max-servers': 2,
         'rate': 10.0,
