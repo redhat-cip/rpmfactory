@@ -18,7 +18,7 @@
         'images': [{
             'name': '{{ image_name }}',
             'base-image': '{{ base_image_name }}',
-            'username': 'centos',
+            'username': 'jenkins',
             'private-key': '/var/lib/jenkins/.ssh/id_rsa',
             'setup': '{{ image_config_script }}',
             'min-ram': 2048,
@@ -39,7 +39,7 @@
   when: sfconfiged.rc
   copy: src={{ image_config_script }} dest=config/nodepool/{{ image_config_script }} mode="u=rwx,g=rx,o=rx"
 
-- name: Update change
+- name: Commit change
   when: sfconfiged.rc
   command: chdir=config  {{ item }}
   with_items:
