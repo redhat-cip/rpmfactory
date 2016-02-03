@@ -92,7 +92,7 @@ if __name__ == "__main__":
             log("Found current jobs running along with me")
             status = check_jobs_status(my_change)
             if len([v for v in status.values() if v == 0]) == \
-               len(my_change['jobs']):
+               len(my_change['jobs']) - 1:
                 log("All jobs succeed for this change")
                 break
             elif len([v for v in status.values() if v == 2]):
