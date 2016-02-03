@@ -21,7 +21,12 @@ import time
 import requests
 
 
-round_delay = 10
+round_delay = 20
+
+
+def log(msg):
+    sys.stdout.write("%s\n" % str(msg))
+    sys.stdout.flush()
 
 
 def look_for_my_change(gate, cid):
@@ -30,8 +35,8 @@ def look_for_my_change(gate, cid):
             for head in queue['heads']:
                 for change in head:
                     if change['id'].split(',')[0] == cid:
-                        print "Found change in shared queue: " \
-                              "%s" % queue['name']
+                        log("Found change in shared queue: " +
+                            "%s" % queue['name'])
                         return change
 
 
@@ -42,10 +47,10 @@ def check_jobs_status(my_change):
             continue
         status[job['name']] = None
         if job['end_time']:
-            print "Job: %s terminated with status: %s" % (
-                  job['name'], job['result'])
+            log("Job: %s terminated with status: %s" % (
+                job['name'], job['result']))
         else:
-            print "Job: %s still running" % job['name']
+            log("Job: %s still running" % job['name'])
             status[job['name']] = 2
             continue
         if job['result'] == 'SUCCESS':
@@ -56,6 +61,7 @@ def check_jobs_status(my_change):
 
 
 def fetch_get_pipeline_status(host):
+    log("Fetching Zuul status")
     r = requests.get("%s/status.json" % host).json()
     return [pipeline for pipeline in r['pipelines'] if
             pipeline['name'] == 'gate'][0]
@@ -66,7 +72,7 @@ def check_non_voting(status, my_change):
         if v == 1:
             job = [j for j in my_change['jobs'] if j['name'] == k][0]
             if job['voting']:
-                print "Job: %s is voting !" % k
+                log("Job: %s is voting !" % k)
                 return False
     return True
 
@@ -76,29 +82,30 @@ if __name__ == "__main__":
     myname = os.environ['JOB_NAME']
     change = os.environ['ZUUL_CHANGE']
     while True:
+        log("")
         gate = fetch_get_pipeline_status(host)
         my_change = look_for_my_change(gate, change)
         if not my_change:
-            print "Error. Change does not exists !"
+            log("Error. Change does not exists !")
             sys.exit(1)
         if my_change['item_ahead'] is None:
+            log("Found current jobs running along with me")
             status = check_jobs_status(my_change)
-            print status
             if len([v for v in status.values() if v == 0]) == \
                len(my_change['jobs']):
-                print "All jobs succeed for this change"
+                log("All jobs succeed for this change")
                 break
             elif len([v for v in status.values() if v == 2]):
-                print "At least one job is in progress. Waiting ..."
+                log("At least one job is in progress. Waiting ...")
                 time.sleep(round_delay)
                 continue
             else:
                 if check_non_voting(status, my_change):
-                    print "All jobs in failure are non voting"
+                    log("All jobs in failure are non voting")
                     break
                 else:
-                    print "Jobs finished but at least one voting job failed"
+                    log("Jobs finished but at least one voting job failed")
                     sys.exit(1)
         else:
-            print "Change is not ahead of the shared queue. waiting ..."
+            log("Change is not ahead of the shared queue. waiting ...")
             time.sleep(round_delay)
