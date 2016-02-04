@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  become: no
+  tasks:
+    - name: Stop previous stack
+      os_stack:
+        name: "rpmfactory"
+        state: absent
+
+    - name: Add key pair
+      os_keypair:
+        state: present
+        name: "{{ lookup('env','USER') }}_key"
+        public_key_file: "{{ lookup('env','HOME') }}/.ssh/id_rsa.pub"
+
+    - name: Allow ssh access for nodepool slave in 'default' security group
+      os_security_group_rule:
+        security_group: default
+        protocol: tcp
+        port_range_min: 22
+        port_range_max: 22
+        remote_ip_prefix: 0.0.0.0/0
+
+    - name: Start the rpmfactory stack
+      os_stack:
+        name: "rpmfactory"
+        state: present
+        timeout: 300
+        template: rpmfactory.hot.yaml
+      register: stack
+
+    - debug: var=stack
