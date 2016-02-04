@@ -8,30 +8,21 @@ if [ -z "${OS_AUTH_URL}" ] || [ -z "${OS_USERNAME}" ]; then
     exit 1
 fi
 
-# Make sure ansible<2 is installed
-if [ "$(ansible --version | awk '/ansible/ {print $2}' | cut -d. -f1)" != "1" ]; then
-    sudo pip install 'ansible<2'
-fi
+. venv_setup.bash
 
 # Stop previous stack
-echo -e "[+] Removing nodepool slave"
+echo -e "[+] Remove nodepool slave and image"
 nova delete managesf.rpmfactory.sftests.com 2> /dev/null
 for h in $(nova list | grep 'template-rpmfactory-image-\|rpmfactory-worker-default-' | awk '{ print $2 }'); do nova delete $h; done
-for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip 2> /dev/null; done
-echo -e "[+] Deleting the stack"
-heat stack-delete rpmfactory
-while [ ! -z "$(heat stack-list | grep rpmfactory)" ]; do echo -n "."; done
-echo -e "\n[+] Stack deleted"
+for image in $(openstack image list | awk '/template-rpmfactory/ { print $2 }'); do
+    openstack image delete ${image}
+done
 
 # Check keypair
 [ -f ~/.ssh/id_rsa ] || ssh-keygen -N '' -f ~/.ssh/id_rsa
-openstack keypair show id_rsa || openstack keypair create --public-key ~/.ssh/id_rsa.pub id_rsa
 
 # Start the stack
-echo -e "[+] Starting the stack"
-heat stack-create --template-file rpmfactory.hot.yaml rpmfactory
-while [ -z "$(heat stack-show rpmfactory | grep CREATE_COMPLETE)" ]; do echo -n "."; done
-echo -e "\n[+] Stack started"
+${ANSIBLE2}-playbook -M ansible/modules ansible/heat_deploy.yml
 
 STACK_INFO=$(heat stack-show rpmfactory)
 KOJI_IP=$(echo ${STACK_INFO} | sed 's/.*"Public address of the koji instance: \([^"]*\)".*/\1/')
@@ -75,7 +66,6 @@ done
 # Fix ansible hardcoded value for tests
 sed -i ansible/roles/koji-rpmfactory/files/koji.conf -e 's/koji-rpmfactory.ring.enovance.com/koji.rpmfactory.sftests.com/'
 cat ~/.ssh/id_rsa.pub | tee ansible/roles/mirror-rpmfactory/files/authorized_keys > ansible/roles/koji-rpmfactory/files/authorized_keys
-
 
 # Install ansible galaxies
 (cd ansible; exec ansible-galaxy install -r Ansiblefile.yml --force)

@@ -1,0 +1,150 @@
+From 34f136f15eca82f7c4075760ab4d965a1e09d7cf Mon Sep 17 00:00:00 2001
+From: Mathieu Bultel <mbultel@redhat.com>
+Date: Thu, 4 Feb 2016 14:16:17 -0500
+Subject: [PATCH 1/3] Add normalize stack function for heat stack_list
+
+With the stack object the _filter_list
+was not able to do the:
+e.get('id')
+e.get('name')
+
+Also the stack dict don't have the 'name' key,
+so need to set name -> stack_name
+
+Unit test add for get_stack and list_stacks function
+
+Change-Id: Ia1f3c949cc01906166175a9dcd3b844bc6947e28
+---
+ shade/_utils.py                       |  7 +++++++
+ shade/meta.py                         |  9 +++++++++
+ shade/openstackcloud.py               |  2 +-
+ shade/task_manager.py                 |  5 +++--
+ shade/tests/fakes.py                  |  1 +
+ shade/tests/unit/test_stack.py        | 10 ++++++++++
+ shade/tests/unit/test_task_manager.py |  6 ------
+ 7 files changed, 31 insertions(+), 9 deletions(-)
+
+diff --git a/shade/_utils.py b/shade/_utils.py
+index 7424862..0d36110 100644
+--- a/shade/_utils.py
++++ b/shade/_utils.py
+@@ -449,6 +449,13 @@ def normalize_role_assignments(assignments):
+     return new_assignments
+ 
+ 
++def normalize_stacks(stacks):
++    """ Normalize Stack Object """
++    for stack in stacks:
++        stack['name'] = stack['stack_name']
++    return stacks
++
++
+ def valid_kwargs(*valid_args):
+     # This decorator checks if argument passed as **kwargs to a function are
+     # present in valid_args.
+diff --git a/shade/meta.py b/shade/meta.py
+index c2d492b..959a2e0 100644
+--- a/shade/meta.py
++++ b/shade/meta.py
+@@ -352,6 +352,15 @@ def obj_to_dict(obj):
+     return instance
+ 
+ 
++def obj_gen_to_dict(gen):
++    """Enumerate through generator of object and return lists of dictonaries.
++    """
++    obj_list = []
++    for obj in gen:
++        obj_list.append(obj_to_dict(obj))
++    return obj_list
++
++
+ def obj_list_to_dict(list):
+     """Enumerate through lists of objects and return lists of dictonaries.
+ 
+diff --git a/shade/openstackcloud.py b/shade/openstackcloud.py
+index bc3fec3..6faff6e 100644
+--- a/shade/openstackcloud.py
++++ b/shade/openstackcloud.py
+@@ -1110,7 +1110,7 @@ class OpenStackCloud(object):
+         """
+         with _utils.shade_exceptions("Error fetching stack list"):
+             stacks = self.manager.submitTask(_tasks.StackList())
+-        return stacks
++        return _utils.normalize_stacks(stacks)
+ 
+     def list_server_security_groups(self, server):
+         """List all security groups associated with the given server.
+diff --git a/shade/task_manager.py b/shade/task_manager.py
+index e949e0f..fca0fca 100644
+--- a/shade/task_manager.py
++++ b/shade/task_manager.py
+@@ -81,8 +81,9 @@ class Task(object):
+ 
+         if type(self._result) == list:
+             return meta.obj_list_to_dict(self._result)
+-        elif type(self._result) not in (bool, int, float, str, set,
+-                                        tuple, types.GeneratorType):
++        elif type(self._result) in (types.GeneratorType,):
++            return meta.obj_gen_to_dict(self._result)
++        elif type(self._result) not in (bool, int, float, str, set, tuple):
+             return meta.obj_to_dict(self._result)
+         else:
+             return self._result
+diff --git a/shade/tests/fakes.py b/shade/tests/fakes.py
+index 45229d9..e25332e 100644
+--- a/shade/tests/fakes.py
++++ b/shade/tests/fakes.py
+@@ -210,6 +210,7 @@ class FakeHypervisor(object):
+ class FakeStack(object):
+     def __init__(self, id, name, description=None, status='CREATE_COMPLETE'):
+         self.id = id
++        self.name = name
+         self.stack_name = name
+         self.stack_description = description
+         self.stack_status = status
+diff --git a/shade/tests/unit/test_stack.py b/shade/tests/unit/test_stack.py
+index 0cd32d5..6de5ba1 100644
+--- a/shade/tests/unit/test_stack.py
++++ b/shade/tests/unit/test_stack.py
+@@ -143,3 +143,13 @@ class TestStack(base.TestCase):
+         )
+         self.assertEqual(2, mock_get.call_count)
+         self.assertEqual(stack, ret)
++
++    @mock.patch.object(shade.OpenStackCloud, 'heat_client')
++    def test_get_stack(self, mock_heat):
++        stack = fakes.FakeStack('azerty', 'stack',)
++        mock_heat.stacks.list.return_value = [stack]
++        res = self.cloud.get_stack('stack')
++        self.assertIsNotNone(res)
++        self.assertEqual(stack.stack_name, res['stack_name'])
++        self.assertEqual(stack.stack_name, res['name'])
++        self.assertEqual(stack.stack_status, res['stack_status'])
+diff --git a/shade/tests/unit/test_task_manager.py b/shade/tests/unit/test_task_manager.py
+index e45db72..9918eb2 100644
+--- a/shade/tests/unit/test_task_manager.py
++++ b/shade/tests/unit/test_task_manager.py
+@@ -13,8 +13,6 @@
+ # limitations under the License.
+ 
+ 
+-import types
+-
+ from shade import task_manager
+ from shade.tests.unit import base
+ 
+@@ -73,10 +71,6 @@ class TestTaskManager(base.TestCase):
+         """
+         self.assertRaises(TestException, self.manager.submitTask, TestTask())
+ 
+-    def test_dont_munchify_generators(self):
+-        ret = self.manager.submitTask(TestTaskGenerator())
+-        self.assertIsInstance(ret, types.GeneratorType)
+-
+     def test_dont_munchify_int(self):
+         ret = self.manager.submitTask(TestTaskInt())
+         self.assertIsInstance(ret, int)
+-- 
+2.4.10
+
