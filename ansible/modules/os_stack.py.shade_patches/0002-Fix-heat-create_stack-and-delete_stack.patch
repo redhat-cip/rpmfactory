@@ -1,0 +1,55 @@
+From dcb285a063f6f0d36532121b15b1d34f706e0c4e Mon Sep 17 00:00:00 2001
+From: Tristan Cacqueray <tdecacqu@redhat.com>
+Date: Thu, 4 Feb 2016 00:26:00 -0500
+Subject: [PATCH 2/3] Fix heat create_stack and delete_stack
+
+This change attempts to fix the create_stack and delete_stack method:
+* get_stack doesn't have a cache parameter
+* stacks.delete only take one parameter, the stack id
+
+Change-Id: Idc6a4c5a3a90808db7204c7187d1a8779803e4a7
+---
+ shade/_tasks.py                | 2 +-
+ shade/openstackcloud.py        | 2 +-
+ shade/tests/unit/test_stack.py | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/shade/_tasks.py b/shade/_tasks.py
+index 6e231bd..8cd5466 100644
+--- a/shade/_tasks.py
++++ b/shade/_tasks.py
+@@ -709,4 +709,4 @@ class StackCreate(task_manager.Task):
+ 
+ class StackDelete(task_manager.Task):
+     def main(self, client):
+-        return client.heat_client.stacks.delete(**self.args)
++        return client.heat_client.stacks.delete(self.args['id'])
+diff --git a/shade/openstackcloud.py b/shade/openstackcloud.py
+index 6faff6e..563bcaf 100644
+--- a/shade/openstackcloud.py
++++ b/shade/openstackcloud.py
+@@ -787,7 +787,7 @@ class OpenStackCloud(object):
+         for count in _utils._iterate_timeout(
+                 timeout,
+                 "Timed out waiting for heat stack to finish"):
+-            stack = self.get_stack(name, cache=False)
++            stack = self.get_stack(name)
+             if stack:
+                 return stack
+ 
+diff --git a/shade/tests/unit/test_stack.py b/shade/tests/unit/test_stack.py
+index 6de5ba1..2882042 100644
+--- a/shade/tests/unit/test_stack.py
++++ b/shade/tests/unit/test_stack.py
+@@ -89,7 +89,7 @@ class TestStack(base.TestCase):
+         mock_get.return_value = stack
+         self.assertTrue(self.cloud.delete_stack('stack_name'))
+         mock_get.assert_called_once_with('stack_name')
+-        mock_heat.stacks.delete.assert_called_once_with(id=stack['id'])
++        mock_heat.stacks.delete.assert_called_once_with(stack['id'])
+ 
+     @mock.patch.object(shade.OpenStackCloud, 'get_stack')
+     @mock.patch.object(shade.OpenStackCloud, 'heat_client')
+-- 
+2.4.10
+

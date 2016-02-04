@@ -1,0 +1,40 @@
+From 4bafedbf1b025eaa9fbc42436214a285cbbad707 Mon Sep 17 00:00:00 2001
+From: Tristan Cacqueray <tdecacqu@redhat.com>
+Date: Mon, 8 Feb 2016 15:56:41 -0500
+Subject: [PATCH] Add environment_files to stack_create
+
+This change adds support for Heat Stack environment files.
+
+Change-Id: Ie6145aa5fde71d93f1df802f16ae4969df5de929
+---
+ shade/openstackcloud.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/shade/openstackcloud.py b/shade/openstackcloud.py
+index c299a25..b21d1ba 100644
+--- a/shade/openstackcloud.py
++++ b/shade/openstackcloud.py
+@@ -766,7 +766,10 @@ class OpenStackCloud(object):
+             template_object=None, files=None,
+             rollback=True,
+             wait=False, timeout=180,
++            environment_files=None,
+             **parameters):
++        env_files, env = template_utils.process_multiple_environments_and_files(
++            env_paths=environment_files)
+         tpl_files, template = template_utils.get_template_contents(
+             template_file=template_file,
+             template_url=template_url,
+@@ -777,7 +780,8 @@ class OpenStackCloud(object):
+             disable_rollback=not rollback,
+             parameters=parameters,
+             template=template,
+-            files=tpl_files,
++            files=dict(list(tpl_files.items()) + list(env_files.items())),
++            env=env,
+         )
+         with _utils.shade_exceptions("Error creating stack {name}".format(
+                 name=name)):
+-- 
+2.4.10
+
