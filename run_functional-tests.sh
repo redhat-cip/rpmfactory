@@ -14,14 +14,16 @@ if [ "$(ansible --version | awk '/ansible/ {print $2}' | cut -d. -f1)" != "1" ];
 fi
 
 # Stop previous stack
-echo -e "[+] Removing nodepool slave"
-nova delete managesf.rpmfactory.sftests.com 2> /dev/null
-for h in $(nova list | grep 'template-rpmfactory-image-\|rpmfactory-worker-default-' | awk '{ print $2 }'); do nova delete $h; done
-for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip 2> /dev/null; done
-echo -e "[+] Deleting the stack"
-heat stack-delete rpmfactory
-while [ ! -z "$(heat stack-list | grep rpmfactory)" ]; do echo -n "."; done
-echo -e "\n[+] Stack deleted"
+[ -z "${FRESH_START}" ] || {
+    echo -e "[+] Removing nodepool slave"
+    nova delete managesf.rpmfactory.sftests.com 2> /dev/null
+    for h in $(nova list | grep 'template-rpmfactory-image-\|rpmfactory-worker-default-' | awk '{ print $2 }'); do nova delete $h; done
+    for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip; done
+    echo -e "[+] Deleting the stack"
+    heat stack-delete rpmfactory
+    while [ ! -z "$(heat stack-list | grep rpmfactory)" ]; do echo -n "."; done
+    echo -e "\n[+] Stack deleted"
+}
 
 # Check keypair
 [ -f ~/.ssh/id_rsa ] || ssh-keygen -N '' -f ~/.ssh/id_rsa

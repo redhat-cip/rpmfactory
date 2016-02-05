@@ -9,7 +9,7 @@
     - sf-nodepool
     # Disabled until rcip-dev support swift
     # - sf-swift
-    - sf-validate
+    # - sf-validate
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
   vars:
