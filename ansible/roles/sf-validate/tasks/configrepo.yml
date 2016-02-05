@@ -1,4 +1,4 @@
-- name: Create 2 projects
+#- name: Create 2 projects
 
 - name: Reset config
   command: chdir=config {{ item }}
