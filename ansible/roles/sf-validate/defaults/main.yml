@@ -1,0 +1,7 @@
+---
+# Sf Access
+fqdn: "rpmfactory.sftests.com"
+admin_password: "userpass"
+
+# test param
+project: "project01"

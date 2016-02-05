@@ -1,4 +1,4 @@
 ---
+- include: "create.yml"
 - include: "sfconfig.yml"
 - include: "configrepo.yml"
-- include: "wait.yml"
