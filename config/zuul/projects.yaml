@@ -1,0 +1,861 @@
+jobs:
+- branch: ^master$
+  name: ^delorean-ci$
+projects:
+- name: rdo
+  periodic:
+  - upstream-update
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: heat-templates-distgit
+- check:
+  - tox-validate
+  name: ceilometer
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ceilometer-distgit
+- check:
+  - tox-validate
+  name: gnocchi
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: gnocchi-distgit
+- check:
+  - tox-validate
+  name: heat
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: heat-distgit
+- check:
+  - tox-validate
+  name: cinder
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: cinder-distgit
+- check:
+  - tox-validate
+  name: neutron
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: neutron-distgit
+- check:
+  - tox-validate
+  name: neutron-fwaas
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: neutron-fwaas-distgit
+- check:
+  - tox-validate
+  name: neutron-lbaas
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: neutron-lbaas-distgit
+- check:
+  - tox-validate
+  name: neutron-vpnaas
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: neutron-vpnaas-distgit
+- check:
+  - tox-validate
+  name: designate
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: designate-distgit
+- check:
+  - tox-validate
+  name: sahara
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: sahara-distgit
+- check:
+  - tox-validate
+  name: tripleo-heat-templates
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tripleo-heat-templates-distgit
+- check:
+  - tox-validate
+  name: tripleo-image-elements
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tripleo-image-elements-distgit
+- check:
+  - tox-validate
+  name: instack
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: instack-distgit
+- check:
+  - tox-validate
+  name: manila
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: manila-distgit
+- check:
+  - tox-validate
+  name: ironic-inspector
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ironic-inspector-distgit
+- check:
+  - tox-validate
+  name: barbican
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: barbican-distgit
+- check:
+  - tox-validate
+  name: ec2-api
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ec2-api-distgit
+- check:
+  - tox-validate
+  name: tripleo-puppet-elements
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tripleo-puppet-elements-distgit
+- check:
+  - tox-validate
+  name: rally
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: rally-distgit
+- check:
+  - tox-validate
+  name: keystoneclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: keystoneclient-distgit
+- check:
+  - tox-validate
+  name: glanceclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: glanceclient-distgit
+- check:
+  - tox-validate
+  name: novaclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: novaclient-distgit
+- check:
+  - tox-validate
+  name: swiftclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: swiftclient-distgit
+- check:
+  - tox-validate
+  name: ceilometerclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ceilometerclient-distgit
+- check:
+  - tox-validate
+  name: heatclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: heatclient-distgit
+- check:
+  - tox-validate
+  name: cinderclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: cinderclient-distgit
+- check:
+  - tox-validate
+  name: ironicclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ironicclient-distgit
+- check:
+  - tox-validate
+  name: neutronclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: neutronclient-distgit
+- check:
+  - tox-validate
+  name: saharaclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: saharaclient-distgit
+- check:
+  - tox-validate
+  name: troveclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: troveclient-distgit
+- check:
+  - tox-validate
+  name: designateclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: designateclient-distgit
+- check:
+  - tox-validate
+  name: manilaclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: manilaclient-distgit
+- check:
+  - tox-validate
+  name: barbicanclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: barbicanclient-distgit
+- check:
+  - tox-validate
+  name: keystonemiddleware
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: keystonemiddleware-distgit
+- check:
+  - tox-validate
+  name: ceilometermiddleware
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ceilometermiddleware-distgit
+- check:
+  - tox-validate
+  name: openstackclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: openstackclient-distgit
+- check:
+  - tox-validate
+  name: ironic-inspector-client
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ironic-inspector-client-distgit
+- check:
+  - tox-validate
+  name: zaqarclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: zaqarclient-distgit
+- check:
+  - tox-validate
+  name: magnumclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: magnumclient-distgit
+- check:
+  - tox-validate
+  name: os-client-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-client-config-distgit
+- check:
+  - tox-validate
+  name: mox3
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: mox3-distgit
+- check:
+  - tox-validate
+  name: oslotest
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslotest-distgit
+- check:
+  - tox-validate
+  name: oslo-sphinx
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-sphinx-distgit
+- check:
+  - tox-validate
+  name: oslo-i18n
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-i18n-distgit
+- check:
+  - tox-validate
+  name: oslo-messaging
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-messaging-distgit
+- check:
+  - tox-validate
+  name: oslo-cache
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-cache-distgit
+- check:
+  - tox-validate
+  name: oslo-concurrency
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-concurrency-distgit
+- check:
+  - tox-validate
+  name: oslo-rootwrap
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-rootwrap-distgit
+- check:
+  - tox-validate
+  name: oslo-serialization
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-serialization-distgit
+- check:
+  - tox-validate
+  name: oslo-middleware
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-middleware-distgit
+- check:
+  - tox-validate
+  name: oslo-db
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-db-distgit
+- check:
+  - tox-validate
+  name: oslo-utils
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-utils-distgit
+- check:
+  - tox-validate
+  name: oslo-vmware
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-vmware-distgit
+- check:
+  - tox-validate
+  name: oslo-context
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-context-distgit
+- check:
+  - tox-validate
+  name: oslo-log
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-log-distgit
+- check:
+  - tox-validate
+  name: oslo-policy
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-policy-distgit
+- check:
+  - tox-validate
+  name: oslo-versionedobjects
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-versionedobjects-distgit
+- check:
+  - tox-validate
+  name: oslo-service
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-service-distgit
+- check:
+  - tox-validate
+  name: oslo-reports
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-reports-distgit
+- check:
+  - tox-validate
+  name: stevedore
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: stevedore-distgit
+- check:
+  - tox-validate
+  name: castellan
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: castellan-distgit
+- check:
+  - tox-validate
+  name: taskflow
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: taskflow-distgit
+- check:
+  - tox-validate
+  name: pycadf
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: pycadf-distgit
+- check:
+  - tox-validate
+  name: debtcollector
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: debtcollector-distgit
+- check:
+  - tox-validate
+  name: automaton
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: automaton-distgit
+- check:
+  - tox-validate
+  name: cliff
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: cliff-distgit
+- check:
+  - tox-validate
+  name: futurist
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: futurist-distgit
+- check:
+  - tox-validate
+  name: hacking
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: hacking-distgit
+- check:
+  - tox-validate
+  name: appdirs
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: appdirs-distgit
+- check:
+  - tox-validate
+  name: os-brick
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-brick-distgit
+- check:
+  - tox-validate
+  name: unicodecsv
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: unicodecsv-distgit
+- check:
+  - tox-validate
+  name: hardware
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: hardware-distgit
+- check:
+  - tox-validate
+  name: keystoneauth1
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: keystoneauth1-distgit
+- check:
+  - tox-validate
+  name: tempest-lib
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tempest-lib-distgit
+- check:
+  - tox-validate
+  name: os-testr
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-testr-distgit
+- check:
+  - tox-validate
+  name: proliantutils
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: proliantutils-distgit
+- check:
+  - tox-validate
+  name: requestsexceptions
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: requestsexceptions-distgit
+- check:
+  - tox-validate
+  name: tooz
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tooz-distgit
+- check:
+  - tox-validate
+  name: reno
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: reno-distgit
+- check:
+  - tox-validate
+  name: cloudkitty
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: cloudkitty-distgit
+- check:
+  - tox-validate
+  name: mistral
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: mistral-distgit
+- check:
+  - tox-validate
+  name: octavia
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: octavia-distgit
+- check:
+  - tox-validate
+  name: ironic-lib
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ironic-lib-distgit
+- check:
+  - tox-validate
+  name: os-win
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-win-distgit
+- check:
+  - tox-validate
+  name: mistralclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: mistralclient-distgit
+- check:
+  - tox-validate
+  name: dracclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: dracclient-distgit
+- check:
+  - tox-validate
+  name: openstacksdk
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: openstacksdk-distgit
+- check:
+  - tox-validate
+  name: cloudkittyclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: cloudkittyclient-distgit
+- check:
+  - tox-validate
+  name: glance_store
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: glance_store-distgit
+- check:
+  - tox-validate
+  name: dib-utils
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: dib-utils-distgit
+- check:
+  - tox-validate
+  name: os-apply-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-apply-config-distgit
+- check:
+  - tox-validate
+  name: os-collect-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-collect-config-distgit
+- check:
+  - tox-validate
+  name: os-net-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-net-config-distgit
+- check:
+  - tox-validate
+  name: os-refresh-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-refresh-config-distgit
+- check:
+  - tox-validate
+  name: os-cloud-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: os-cloud-config-distgit
+- check:
+  - tox-validate
+  name: zaqar
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: zaqar-distgit
+- check:
+  - tox-validate
+  name: ironic-python-agent
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ironic-python-agent-distgit
+- check:
+  - tox-validate
+  name: networking-arista
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: networking-arista-distgit
+- check:
+  - tox-validate
+  name: osprofiler
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: osprofiler-distgit
+- check:
+  - tox-validate
+  name: pysaml2
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: pysaml2-distgit
+- check:
+  - tox-validate
+  name: networking-cisco
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: networking-cisco-distgit
+- check:
+  - tox-validate
+  name: vmware-nsx
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: vmware-nsx-distgit
+- check:
+  - tox-validate
+  name: networking-mlnx
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: networking-mlnx-distgit
+- check:
+  - tox-validate
+  name: networking-odl
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: networking-odl-distgit
+- check:
+  - tox-validate
+  name: app-catalog-ui
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: app-catalog-ui-distgit
+- check:
+  - tox-validate
+  name: UcsSdk
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: UcsSdk-distgit
+- check:
+  - tox-validate
+  name: cachetools
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: cachetools-distgit
+- check:
+  - tox-validate
+  name: aodh
+- check:
+  - pkg-validate
+  - delorean-ci
+  gate:
+  - pkg-validate
+  - pkg-export
+  name: aodh-distgit
+- check:
+  - tox-validate
+  name: tempest
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tempest-distgit
+- check:
+  - tox-validate
+  name: tripleo-incubator
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tripleo-incubator-distgit
+- check:
+  - tox-validate
+  name: tripleoclient
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: tripleoclient-distgit
+- check:
+  - tox-validate
+  name: horizon
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: horizon-distgit
+- check:
+  - tox-validate
+  name: oslo-config
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: oslo-config-distgit
+- check:
+  - tox-validate
+  name: openstack-puppet-modules
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: openstack-puppet-modules-distgit
+- check:
+  - tox-validate
+  name: swift
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: swift-distgit
+- check:
+  - tox-validate
+  name: keystone
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: keystone-distgit
+- check:
+  - tox-validate
+  name: glance
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: glance-distgit
+- check:
+  - tox-validate
+  name: ironic
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: ironic-distgit
+- check:
+  - tox-validate
+  name: trove
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: trove-distgit
+- check:
+  - tox-validate
+  name: nova
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: nova-distgit
+- check:
+  - tox-validate
+  name: packstack
+- check:
+  - pkg-validate
+  - delorean-ci
+  name: packstack-distgit
