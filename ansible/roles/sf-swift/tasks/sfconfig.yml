@@ -1,0 +1,20 @@
+---
+- name: Check swiftlog sfconfig
+  command: "grep -q {{ swifturl }}/{{ container }} /etc/zuul/zuul.conf"
+  register: swiftlog_config
+  failed_when: False
+
+- name: Add swift logs configuration to sfconfig
+  when: swiftlog_config.rc != 0
+  command: >
+    hieraedit.py --yaml /etc/puppet/hiera/sf/sfconfig.yaml --eval logs "{ 'disabled': False,
+        'swift_logsexport_container': '{{ sfswift_container }}',
+        'swift_logsexport_logserver_prefix': '{{ sfswift_url }}/{{ sfswift_container }}',
+        'swift_logsexport_x_storage_url': '{{ sfswift_url }}',
+        'swift_logsexport_x_tempurl_key': '{{ sfswift_tempurlkey }}',
+        'swift_logsexport_send_tempurl_key': 'False',
+      }"
+
+- name: Restart sfconfig
+  when: swiftlog_config.rc != 0
+  command: sfconfig.sh

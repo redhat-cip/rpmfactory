@@ -1,0 +1,16 @@
+---
+# Sf Access
+fqdn: "rpmfactory.sftests.com"
+admin_password: "userpass"
+
+# Cloud provider
+os_auth_url: "http://192.168.42.1:5000/v2.0"
+os_username: "sfnodepool"
+os_password: "sf4ever"
+os_tenant_name: "sfmain"
+
+# Swift settings
+sfswift_url: "http://swift.example.com:8080/v1/AUTH_sfuser"
+sfswift_container: "artifacts"
+sfswift_job_template: "^.*$"
+sfswift_tempurlkey: "TEMPURLKEY"

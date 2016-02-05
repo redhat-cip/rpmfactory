@@ -1,0 +1,41 @@
+- name: Create 2 projects
+
+- name: Reset config
+  command: chdir=config {{ item }}
+  with_items:
+    - git fetch --all
+    - git reset --hard origin/master --
+
+- name: Add jjb project01
+  command: >
+    hieraedit.py --yaml config/jobs/projects.yaml --eval --append 0 \
+        "{'project': {'name': 'it_project01',
+          'jobs': ['{name}-unit-tests']
+        }}"
+
+- name: Add zuul project01
+  command: >
+    hieraedit.py --yaml config/zuul/projects.yaml --eval --append projects \
+        "{'name': 'it_project01',
+           'check': ['it_project01-unit-tests',],
+           'gate': ['it_project01-unit-tests',],
+        }"
+
+- name: Commit change
+  when: sfconfiged.rc
+  command: chdir=config  {{ item }}
+  with_items:
+      - 'git commit -a -m "Adds it_project01"'
+      - 'submit_and_wait.py --approve'
+
+- command: chdir=config cat .git/refs/heads/master
+  register: commitsha
+
+- name: Wait for config-update post job
+  wait_for: path=/var/lib/jenkins/jobs/config-update/builds/lastStableBuild/log search_regex={{ commitsha.stdout }}
+
+- name: Wait for new jenkins job
+  wait_for: path=/var/lib/jenkins/jobs/it_project01-unit-tests
+
+- name: Wait for new zuul layout job
+  wait_for: path=/etc/zuul/layout.yaml search_regex=it_project01-unit-tests

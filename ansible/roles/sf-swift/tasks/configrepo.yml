@@ -1,0 +1,30 @@
+---
+- name: Reset config
+  command: chdir=config {{ item }}
+  with_items:
+    - git fetch --all
+    - git reset --hard origin/master --
+
+- name: Check if template already defined
+  command: grep -q "name. {{ sfswift_job_template }}" config/zuul/projects.yaml
+  register: sfconfiged
+  failed_when: False
+
+- name: Add swift name for job matching template
+  when: sfconfiged.rc
+  command: >
+      hieraedit.py --yaml config/zuul/projects.yaml --eval --append jobs \
+        '{"name": "{{ sfswift_job_template }}", "swift": [{"name": "{{ sfswift_container }}"}]}'
+
+- name: Commit change
+  when: sfconfiged.rc
+  command: chdir=config  {{ item }}
+  with_items:
+      - 'git commit -a -m "Adds {{ sfswift_container }} template"'
+      - 'submit_and_wait.py --approve'
+
+- command: chdir=config cat .git/refs/heads/master
+  register: commitsha
+
+- name: Wait for config-update post job
+  wait_for: path=/var/lib/jenkins/jobs/config-update/builds/lastStableBuild/log search_regex={{ commitsha.stdout }}

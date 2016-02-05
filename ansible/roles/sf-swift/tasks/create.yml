@@ -1,0 +1,18 @@
+---
+- name: Check Swift container exists
+  command: swift stat "{{ sfswift_container }}"
+  register: swift_stat
+  failed_when: False
+  environment: "{{os_env}}"
+
+- name: Create container
+  when: swift_stat.rc != 0
+  command: "{{ item }}"
+  with_items:
+    - "swift post {{ sfswift_container }} -r '.r:*' -m 'web-listing: true'"
+    - "swift stat {{ sfswift_container }}"
+  environment: "{{os_env}}"
+
+- name: Set temp url key
+  command: "swift post -m 'Temp-URL-Key: {{ sfswift_tempurlkey }}' {{ sfswift_container }}"
+  environment: "{{os_env}}"
