@@ -1,19 +1,7 @@
-[mirror_rpmfactory]
+[mirror]
 koji.rpmfactory.sftests.com
 
-[koji_db]
-koji.rpmfactory.sftests.com
-
-[koji_ca]
-koji.rpmfactory.sftests.com
-
-[koji_hub]
-koji.rpmfactory.sftests.com
-
-[koji_web]
-koji.rpmfactory.sftests.com
-
-[koji_builder]
+[koji]
 koji.rpmfactory.sftests.com
 
 [managesf]

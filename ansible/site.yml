@@ -14,39 +14,23 @@
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
   vars:
     os_env:
-      OS_USERNAME: "{{ os_username }}"
-      OS_AUTH_URL: "{{ os_auth_url }}"
-      OS_TENANT_NAME: "{{ os_tenant_name }}"
-      OS_PASSWORD: "{{ os_password }}"
+      OS_USERNAME: "{{ os_username }}"
+      OS_AUTH_URL: "{{ os_auth_url }}"
+      OS_TENANT_NAME: "{{ os_tenant_name }}"
+      OS_PASSWORD: "{{ os_password }}"
 
-
-- hosts: koji_db
+- hosts: koji
   roles:
     - epel
-
-- hosts: koji_db
-  roles:
     - patrik.uytterhoeven.PostgreSQL-For-RHEL6x
     - koji-db
-
-- hosts: koji_ca
-  roles:
     - koji-ca
-
-- hosts: koji_hub
-  roles:
     - koji-hub
     - koji-kojira
-
-- hosts: koji_web
-  roles:
     - koji-web
-
-- hosts: mirror_rpmfactory
-  roles:
-    - mirror-rpmfactory
-
-- hosts: koji_builder
-  roles:
     - koji-rpmfactory
     - koji-builder
+
+- hosts: mirror
+  roles:
+    - mirror-rpmfactory
