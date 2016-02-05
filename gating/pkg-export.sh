@@ -21,7 +21,7 @@
 
 source ./rpm-koji-gating-lib.common
 
-echo "\n=== Wait for other belonging jobs for this change to finish ==="
+echo "\n\n=== Wait for other belonging jobs for this change to finish ==="
 
 # Wait for other job to finish
 # We want to make sure all jobs belonging to this change
@@ -39,9 +39,11 @@ echo "\n===  Start publish RPMS for job ${ZUUL_PROJECT} ==="
 sanitize
 
 # Fetch all involved projects
+echo -e "\n--- Fetch $ZUUL_PROJECT at the right revision ---"
 zuul-cloner --workspace $workdir $rpmfactory_clone_url $ZUUL_PROJECT
 
 # Build all SRPMS
+echo -e "\n--- Build SRPM for $ZUUL_PROJECT ---"
 pushd ${workdir}/$ZUUL_PROJECT > /dev/null
 git log -n1
 pname=$(egrep "^Name:" *.spec | awk '{print $2}')
@@ -50,6 +52,7 @@ srpm=$(ls ${rpmbuild}/SRPMS/${pname}*.src.rpm)
 popd > /dev/null
 
 # Start builds on koji
+echo -e "\n--- Start koji build for $ZUUL_PROJECT ---"
 start_build_on_koji $srpm $ZUUL_PROJECT "" 
 
 # Check build status koji side

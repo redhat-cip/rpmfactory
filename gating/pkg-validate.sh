@@ -20,7 +20,7 @@
 
 source ./rpm-koji-gating-lib.common
 
-echo "=== Start job for ${ZUUL_PROJECT} ==="
+echo -e "\n\n=== Start job for ${ZUUL_PROJECT} ==="
 
 # Clean previous run
 sanitize
@@ -44,5 +44,6 @@ fetch_rpms
 create_local_repo
 
 # Run packstack test
+echo -e "\n--- Run packstack test ---"
 $currentdir/run_packstack.sh \
   ${rpmbuild}/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm $url

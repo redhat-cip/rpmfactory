@@ -163,10 +163,11 @@ function fetch_rpms() {
 }
 
 function create_local_repo() {
+  echo -e "\n--- Create a local repository ---"
   createrepo $temprepopath
   find $temprepopath
   # Build release RPM with temporary repo included
-  $currentdir/build-release-rpm.sh $url $validatedurl
+  $currentdir/build-release-rpm.sh $url $validatedurl &> /dev/null
   rm rdo-temp-release.spec
 }
 
