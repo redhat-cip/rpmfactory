@@ -45,5 +45,8 @@ create_local_repo
 
 # Run packstack test
 echo -e "\n--- Run packstack test ---"
-$currentdir/run_packstack.sh \
-  ${rpmbuild}/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm $url
+#$currentdir/run_packstack.sh \
+#  ${rpmbuild}/RPMS/noarch/rdo-temp-release-1.0-1.noarch.rpm $url
+
+echo "Simulate"
+sleep 100
