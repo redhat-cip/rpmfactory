@@ -55,7 +55,7 @@ function sanitize() {
 function build_srpm() {
   spectool -g ./*.spec -C ${rpmbuild}/SOURCES/
   rsync --exclude="*.spec" ./* ${rpmbuild}/SOURCES/
-  rpmbuild -bs ./*.spec
+  rpmbuild_output=$(rpmbuild -bs ./*.spec)
 }
 
 function start_build_on_koji() {
@@ -108,7 +108,8 @@ function build_srpms() {
     pushd "${workdir}/${project}" > /dev/null
     git log -n1
     build_srpm
-    pname=$(egrep "^Name:" *.spec | awk '{print $2}')
+    fpname=$(echo $rpmbuild_output | awk -F'/' '{print $NF}')
+    pname=$(python -c "import sys; from rpmUtils.miscutils import splitFilename; print splitFilename(sys.argv[1])[0]" $fpname)
     popd > /dev/null
     mkdir -p "${workdir}/${project}_meta/"
     echo $pname > "${workdir}/${project}_meta/pname"

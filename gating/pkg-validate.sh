@@ -16,7 +16,7 @@
 
 # Run it standalone
 # DEBUG=1 WORKSPACE=/tmp/workspace_sim ZUUL_CHANGES=aodh-distgit:xyz^cinderclient-distgit:rdo-liberty:xyz \
-# ZUUL_BRANCH=rdo-liberty ZUUL_URL=http://rpmfactory.beta.rdoproject.org/zuul/p ZUUL_REF="" rpmfactory/koji-build.sh
+# ZUUL_BRANCH=rdo-liberty ZUUL_URL=http://rpmfactory.beta.rdoproject.org/zuul/p ZUUL_REF="" pkg-validate.sh
 
 source ./rpm-koji-gating-lib.common
 
