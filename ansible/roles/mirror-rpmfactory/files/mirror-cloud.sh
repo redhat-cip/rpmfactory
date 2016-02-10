@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TARGET='/srv/mirror/centos/7/cloud'
+SRPM="${TARGET}/Source"
 
 if [ -f /var/lock/subsys/rsync_updates ]; then
   echo "Updates via rsync already running."
@@ -10,7 +11,14 @@ if [ -d ${TARGET} ] ; then
   touch /var/lock/subsys/rsync_updates
   if [ "$(hostname -f)" != "koji.rpmfactory.sftests.com" ]; then
     # Don't sync in pre-prod
-    rsync  -avSHP --delete --exclude "local*" --exclude "isos" --exclude "instance" rsync://mirrors.ircam.fr/pub/CentOS/7/cloud/ ${TARGET}/
+    rsync  -avSHP --delete --exclude "local*" --exclude "isos" --exclude "instance" rsync://mirrors.ircam.fr/pub/CentOS/7/cloud/x86_64/ ${TARGET}/x86_64/
+    # Sync also srpm files (only official mirror can use rsync, let use wget then :-()
+    mkdir -p "${SRPM}"
+    pushd "${SRPM}"
+      wget -r --no-parent --quiet --reject "index.html*" http://vault.centos.org/centos/7/cloud/Source/
+      mv vault.centos.org/centos/7/cloud/Source/* .
+      rm -rf vault.centos.org
+    popd
   fi
   /bin/rm -f /var/lock/subsys/rsync_updates
   echo "Change SELinux context, (httpd_sys_content_t)."
