@@ -8,10 +8,23 @@ if [ -z "${OS_AUTH_URL}" ] || [ -z "${OS_USERNAME}" ]; then
     exit 1
 fi
 
+PIP_DEPS=""
+
 # Make sure ansible<2 is installed
-if [ "$(ansible --version | awk '/ansible/ {print $2}' | cut -d. -f1)" != "1" ]; then
-    sudo pip install 'ansible<2'
+if which ansible &> /dev/null; then
+    if [ "$(ansible --version | awk '/ansible/ {print $2}' | cut -d. -f1)" != "1" ]; then
+        PIP_DEPS+="ansible<2"
+    fi
+else
+   PIP_DEPS+="ansible<2"
 fi
+
+if ! which openstack &> /dev/null; then
+   PIP_DEPS+=" python-openstackclient"
+fi
+
+echo "Installing: $PIP_DEPS"
+sudo pip install $PIP_DEPS
 
 # Stop previous stack
 [ -z "${FRESH_START}" ] || {
