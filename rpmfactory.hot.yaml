@@ -23,7 +23,7 @@ parameters:
   image_id:
     type: string
     description: SF image ID (default is 2.1.5 from rcip-dev)
-    default: 7d3b0a38-b486-4ead-aac5-e514086285e5
+    default: e4ae5c57-50c4-42ce-aff1-cc22ebc06457
   sf_root_size:
     type: string
     description: Root disk size of the instance
