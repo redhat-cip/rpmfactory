@@ -158,14 +158,20 @@ resources:
   sf_volume:
     type: OS::Cinder::Volume
     properties:
-      name  : "sf"
+      name  :
+        str_replace:
+          template: sf_volume.domain
+          params: {domain: {get_param: domain}}
       image : { get_param: image_id }
       size  : { get_param: sf_root_size }
 
   koji_volume:
     type: OS::Cinder::Volume
     properties:
-      name  : "koji"
+      name  :
+        str_replace:
+          template: koji_volume.domain
+          params: {domain: {get_param: domain}}
       image : { get_param: baseimage_id }
       size  : { get_param: sf_root_size }
 
