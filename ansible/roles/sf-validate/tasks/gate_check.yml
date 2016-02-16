@@ -1,0 +1,22 @@
+- name: Commit bad change and check for test error
+  command: chdir=build-{{ project }} {{ item }}
+  with_items:
+    - 'bash -c "(echo exit 1; date) > run_tests.sh"' # Add date to prevent (no new changes reject)
+    - 'chmod +x run_tests.sh'
+    - 'git add run_tests.sh'
+    - 'git commit -m "Test {{ project }} repo"'
+    - 'submit_and_wait.py --failure'
+
+- name: "Update change and check for test SUCCESS"
+  command: chdir=build-{{ project }} {{ item }}
+  with_items:
+    - 'bash -c "(echo exit 0; date) > run_tests.sh"' # Add date to prevent (no new changes reject)
+    - 'git commit -a --amend'
+    - 'submit_and_wait.py --approve'
+    - 'git fetch --all'
+  environment: {'EDITOR':'test'}
+
+- name: "Check change was merged"
+  command: chdir=build-{{ project }} git diff HEAD origin/master
+  register: diff
+  failed_when: diff.stdout != ''

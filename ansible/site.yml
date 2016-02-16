@@ -6,7 +6,8 @@
     - name: Wait for cloud-init success
       wait_for: path=/var/log/cloud-init-output.log search_regex="^SUCCESS 1node-allinone$"
   roles:
-    - sf-nodepool
+    - sf-rpmfactory
+    # - sf-nodepool
     # Disabled until rcip-dev support swift
     # - sf-swift
     # - sf-validate
