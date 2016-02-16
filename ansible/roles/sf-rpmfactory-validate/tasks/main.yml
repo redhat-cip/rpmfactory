@@ -1,0 +1,65 @@
+---
+
+# Create a project p1 (mirror) and p1-distgit (distgit)
+- include: project_create.yaml project=p1
+- name: Reset p1
+  command: chdir=config {{ item }}
+  with_items:
+    - git fetch --all
+    - git reset --hard origin/master --
+
+- include: project_create.yaml project=p1-distgit
+- name: Reset p1-distgit
+  command: chdir=config {{ item }}
+  with_items:
+    - git fetch --all
+    - git reset --hard origin/master --
+- name: Populate p1 with a fake RPM .spec file
+  copy: src=../files/p1.spec dest=build-p1-distgit/
+- name: Direct submit p1-distgit change
+  shell: chdir=build-p1-distgit {{ item }}
+  with_items:
+    - "git review -s"
+    - "git commit -a"
+    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git commit -m 'Add default .spec file' || true"
+    - "git push -f gerrit"
+
+- name: Configure job to be triggered for p1
+  command: >
+    hieraedit.py --yaml config/zuul/projects.yaml --eval projects \
+        "{'name': 'p1',
+           'check': ['tox-validate',],
+        }"
+
+- name: Configure job to be triggered for p1-distgit
+  command: >
+    hieraedit.py --yaml config/zuul/projects.yaml --eval projects \
+        "{'name': 'p1-distgit',
+           'check': ['pkg-validate',],
+           'gate': ['pkg-validate', 'pkg-export'],
+        }"
+
+- name: Commit config repo changes
+  shell: chdir=config  {{ item }}
+  with_items:
+      - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git commit -a -m 'Adds Zuul config for project p1'"
+
+- name: Check for a change in local config repo
+  command: chdir=config git diff HEAD origin/master
+  register: diff
+- name: Submit jobs to config repo and wait for validation before submition
+  when: diff.stdout != ''
+  shell: chdir=config submit_and_wait.py --approve
+
+
+#- include: gate_check.yml project=testpkg
+#
+##- include: "project_create.yaml"
+#
+##- stat: path=/var/lib/jenkins/jobs/{{ project }}-unit_tests
+##  register: job_created
+#
+##- include: "configrepo.yml"
+##  when: job_created.stat.isdir is not defined
+#
+#

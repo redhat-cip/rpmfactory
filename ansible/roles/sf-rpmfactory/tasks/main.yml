@@ -28,5 +28,4 @@
   register: diff
 - name: Submit jobs to config repo and wait for validation before submition
   when: diff.stdout != ''
-  shell: chdir=config {{ item }}
-    - "submit_and_wait.py --approve"
+  shell: chdir=config submit_and_wait.py --approve
