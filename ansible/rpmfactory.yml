@@ -1,0 +1,7 @@
+---
+- hosts: managesf
+  user: root
+  roles:
+    - sf-rpmfactory
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
