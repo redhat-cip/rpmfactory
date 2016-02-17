@@ -24,6 +24,7 @@
     - "git reset --hard origin/master --"
     - "git clean -f -d"
 - copy: src=../files/jobs/rpmfactory.yaml dest=config/jobs/rpmfactory.yaml
+- copy: src=../files/nodepool/rpmfactory-base.sh dest=config/nodepool/rpmfactory-base.sh
 - name: Add jobs to local config repo
   shell: chdir=config {{ item }}
   with_items:
