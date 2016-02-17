@@ -1,0 +1,43 @@
+# This file contains base jobs for rpmfactory
+# Any modification here will be overwritten
+# by an upgrade of rpmfactory
+
+- builder:
+    name: prepare-rpmfactory-workspace
+    builders:
+      - shell: |
+          # If this is called in a periodic job, these will not be set
+          echo "Use default for ZUUL_BRANCH and ZUUL_REF if needed"
+          export ZUUL_BRANCH=${ZUUL_BRANCH:-master}
+          export ZUUL_REF=${ZUUL_REF:-None}
+          # In the post pipeline ZUUL_REF is master but does not behave as we want
+          # So fall back on None
+          [ "$ZUUL_REF" = "master" ] && ZUUL_REF=None || true
+          echo "Clean workspace"
+          rm -Rf ./*
+
+- job:
+    name: 'pkg-validate'
+    defaults: global
+    builders:
+      - prepare-rpmfactory-workspace
+      - shell: |
+          git clone http://softwarefactory-project.io/r/rpmfactory
+          cd rpmfactory/gating
+          ./pkg-validate.sh
+    triggers:
+      - zuul
+    node: koji-centos-7
+
+- job:
+    name: 'pkg-export'
+    defaults: global
+    builders:
+      - prepare-rpmfactory-workspace
+      - shell: |
+          git clone http://softwarefactory-project.io/r/rpmfactory
+          cd rpmfactory/gating
+          ./pkg-export.sh
+    triggers:
+      - zuul
+    node: koji-centos-7
