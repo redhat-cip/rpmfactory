@@ -7,7 +7,7 @@
   shell: chdir=build-gating_scripts {{ item }}
   with_items:
     - "git review -s"
-    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git commit -a -m 'Update gating scripts' || true"
+    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Update gating scripts' || true"
     - "git push -f gerrit"
 
 # Push rpmfactory jjb in the config repo
@@ -21,8 +21,7 @@
 - name: Add jobs to local config repo
   shell: chdir=config {{ item }}
   with_items:
-    - "git add jobs/rpmfactory.yaml"
-    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git commit -m 'Add rpmfactory jobs' || true"
+    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Add rpmfactory jobs' || true"
 - name: Check for a gating script update
   command: chdir=config git diff HEAD origin/master
   register: diff
