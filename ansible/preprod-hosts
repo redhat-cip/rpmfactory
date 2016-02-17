@@ -6,3 +6,20 @@ koji.rpmfactory.sftests.com
 
 [managesf]
 managesf.rpmfactory.sftests.com
+
+# Defined for koji-hub role
+#TODO(sbadia) fix hub upstream
+[koji_web]
+koji.rpmfactory.sftests.com
+
+[koji_ca]
+koji.rpmfactory.sftests.com
+
+[koji_db]
+koji.rpmfactory.sftests.com
+
+[koji_builder]
+koji.rpmfactory.sftests.com
+
+[koji_hub]
+koji.rpmfactory.sftests.com
