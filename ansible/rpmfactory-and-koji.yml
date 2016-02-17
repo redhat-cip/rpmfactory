@@ -6,11 +6,10 @@
     - name: Wait for cloud-init success
       wait_for: path=/var/log/cloud-init-output.log search_regex="^SUCCESS 1node-allinone$"
   roles:
+    - sf-nodepool
     - sf-rpmfactory
-    # - sf-nodepool
     # Disabled until rcip-dev support swift
     # - sf-swift
-    # - sf-validate
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
   vars:
@@ -31,7 +30,3 @@
     - koji-web
     - koji-rpmfactory
     - koji-builder
-
-- hosts: mirror
-  roles:
-    - mirror-rpmfactory
