@@ -1,5 +1,11 @@
 ---
 
+# Create rpmfbender user
+- name: Add rpmfbender user in local backend (service user) 
+  shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username rpmfbender --password {{ rpmfbender_password  }} --email 'dev-robot@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa"
+- name: Activate rpmfbender user (force cauth to register the user)
+  shell: "sfmanager --url http://{{ fqdn }} --auth rpmfbender:{{ rpmfbender_password }} user update --username rpmfbender --password {{ rpmfbender_password  }}"
+
 # Create and maintain updated gating_scripts repo
 - include: project_create.yaml project=gating_scripts
 - copy: src=../../../../gating/ dest=build-gating_scripts/
