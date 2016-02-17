@@ -98,9 +98,11 @@ cat ~/.ssh/id_rsa.pub | tee ansible/roles/mirror-rpmfactory/files/authorized_key
 # Install ansible galaxies
 (cd ansible; exec ansible-galaxy install -r Ansiblefile.yml --force)
 
-# Start rpmfactory playbook
-(cd ansible; exec ansible-playbook -i preprod-hosts site.yml --extra-vars "CN=koji.${DOMAIN} os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME} nodepool_net=${SF_SLAVE_NETWORK}")
+# Start rpmfactory+koji deployment playbook
+(cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN} os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME} nodepool_net=${SF_SLAVE_NETWORK}")
 
+# Run rpmfactory integration test playbook
+(cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-integration-tests.yml)
 
 # TODO:
 # make sure default security group allow ssh

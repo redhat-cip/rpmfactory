@@ -6,13 +6,6 @@
     - name: Wait for cloud-init success
       wait_for: path=/var/log/cloud-init-output.log search_regex="^SUCCESS 1node-allinone$"
   roles:
-    - sf-nodepool
-    - sf-rpmfactory
+    - sf-rdofactory
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
-  vars:
-    os_env:
-      OS_USERNAME: "{{ os_username }}"
-      OS_AUTH_URL: "{{ os_auth_url }}"
-      OS_TENANT_NAME: "{{ os_tenant_name }}"
-      OS_PASSWORD: "{{ os_password }}"

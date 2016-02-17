@@ -2,9 +2,6 @@
 - hosts: managesf
   user: root
   roles:
-    # - sf-nodepool
-    # Disabled until rcip-dev support swift
-    # - sf-swift
     - sf-rpmfactory-validate
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
