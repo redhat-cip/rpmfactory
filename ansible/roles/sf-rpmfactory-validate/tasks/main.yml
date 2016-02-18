@@ -1,5 +1,11 @@
 ---
 
+# Prepare nodepool conf and build rpmfactory base image
+- include: "sfconfig.yml"
+- include: "configrepo.yml"
+- include: "wait.yml"
+
+# Workaround to wait for hieraedit to land in SF
 - name: Copy modified version of hieraedit.py (temp)
   copy: src=../files/hieraedit.py dest=/usr/local/bin/
 
@@ -59,16 +65,3 @@
 - name: Submit jobs to config repo and wait for validation before submition
   when: diff.stdout != ''
   shell: chdir=config submit_and_wait.py --approve
-
-
-#- include: gate_check.yml project=testpkg
-#
-##- include: "project_create.yaml"
-#
-##- stat: path=/var/lib/jenkins/jobs/{{ project }}-unit_tests
-##  register: job_created
-#
-##- include: "configrepo.yml"
-##  when: job_created.stat.isdir is not defined
-#
-#

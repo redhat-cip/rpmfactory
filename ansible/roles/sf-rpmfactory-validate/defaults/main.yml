@@ -3,5 +3,16 @@
 fqdn: "rpmfactory.sftests.com"
 admin_password: "userpass"
 
-# test param
-project: "project01"
+# Cloud provider
+os_auth_url: "http://192.168.42.1:5000/v2.0"
+os_username: "sfnodepool"
+os_password: "sf4ever"
+os_tenant_name: "sfmain"
+
+# Nodepool settings
+nodepool_net: "slave_net"
+pool: "public"
+base_image_name: "CentOS 7 (1511) x86_64"
+image_name: "rpmfactory-base-image"
+node_label: "rpmfactory-base-worker"
+image_config_script: "rpmfactory-base.sh"
