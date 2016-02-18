@@ -1,31 +1,45 @@
-#- name: Create 2 projects
-
+---
 - name: Reset config
   command: chdir=config {{ item }}
   with_items:
     - git fetch --all
     - git reset --hard origin/master --
 
-- name: Add jjb project01
-  command: >
-    hieraedit.py --yaml config/jobs/projects.yaml --eval --append 0 \
-        "{'project': {'name': 'it_project01',
-          'jobs': ['{name}-unit-tests']
-        }}"
+- name: Check if image is already defined
+  command: "grep -q '{{ node_label }}' config/nodepool/labels.yaml"
+  register: sfconfiged
+  failed_when: False
 
-- name: Add zuul project01
+- name: Adds nodepool image
+  when: sfconfiged.rc
   command: >
-    hieraedit.py --yaml config/zuul/projects.yaml --eval --append projects \
-        "{'name': 'it_project01',
-           'check': ['it_project01-unit-tests',],
-           'gate': ['it_project01-unit-tests',],
-        }"
+    hieraedit.py --yaml config/nodepool/images.yaml --eval 0 "{
+        'provider': 'default',
+        'images': [{
+            'name': '{{ image_name }}',
+            'base-image': '{{ base_image_name }}',
+            'username': 'jenkins',
+            'private-key': '/var/lib/jenkins/.ssh/id_rsa',
+            'setup': '{{ image_config_script }}',
+            'min-ram': 2048,
+        }]
+    }"
+
+- name: Adds nodepool label
+  when: sfconfiged.rc
+  command: >
+    hieraedit.py --yaml config/nodepool/labels.yaml --eval labels "[{
+        'name': '{{ node_label }}',
+        'image': '{{ image_name }}',
+        'min-ready': 1,
+        'providers': [{'name': 'default'}]
+    }]"
 
 - name: Commit change
   when: sfconfiged.rc
   command: chdir=config  {{ item }}
   with_items:
-      - 'git commit -a -m "Adds it_project01"'
+      - 'git commit -a -m "Adds {{ node_label }} node label"'
       - 'submit_and_wait.py --approve'
 
 - command: chdir=config cat .git/refs/heads/master
@@ -33,9 +47,3 @@
 
 - name: Wait for config-update post job
   wait_for: path=/var/lib/jenkins/jobs/config-update/builds/lastStableBuild/log search_regex={{ commitsha.stdout }}
-
-- name: Wait for new jenkins job
-  wait_for: path=/var/lib/jenkins/jobs/it_project01-unit-tests
-
-- name: Wait for new zuul layout job
-  wait_for: path=/etc/zuul/layout.yaml search_regex=it_project01-unit-tests

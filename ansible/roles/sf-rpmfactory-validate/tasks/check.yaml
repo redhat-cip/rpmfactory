@@ -1,8 +1,0 @@
-- name: "Update change and check for test SUCCESS"
-  command: chdir=build-{{ project }} {{ item }}
-  with_items:
-    - 'bash -c "(echo echo TEST EXPORT \| tee ../artifacts/test_log.txt; echo exit 0; date) > run_tests.sh"' # Add date to prevent (no new changes reject)
-    - 'chmod +x run_tests.sh'
-    - 'git add run_tests.sh'
-    - 'git commit -a -m "Test {{ project }} repo publisher"'
-    - 'submit_and_wait.py --approve --delay 120'
