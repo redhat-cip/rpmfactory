@@ -15,3 +15,9 @@
 - name: Checkout {{ project }}
   command: 'git clone http://{{ fqdn }}/r/{{ project }} build-{{ project }}'
   when: p.stat.isdir is not defined
+
+- name: gitreview -s for local repo for {{ project }}
+  command: chdir=build-{{ project }} {{ item }}
+  with_items:
+    - "git config gitreview.username admin"
+    - "git review -s"

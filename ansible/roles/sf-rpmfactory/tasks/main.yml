@@ -12,7 +12,6 @@
 - name: Add rpmfactory gating scripts
   shell: chdir=build-gating_scripts {{ item }}
   with_items:
-    - "git review -s"
     - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Update gating scripts' || true"
     - "git push -f gerrit"
 
