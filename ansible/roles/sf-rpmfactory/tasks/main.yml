@@ -1,5 +1,17 @@
 ---
 
+# Copy tool to store secret in Credential Binding
+- name: Copy tool to store secret in Credential Binding
+  copy: src=../../../../tools/cb-add-get.py dest=/usr/local/bin/cb-add-get.py mode=0755
+  tags:
+    - rpmf_koji_cert
+
+# Install Koji client cert in Credential Binding
+- name: Install Koji client cert in Credential Binding
+  shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} add /etc/jenkins-koji.tgz kojiclientcreds
+  tags:
+    - rpmf_koji_cert
+
 # Create rpmfbender user
 - name: Add rpmfbender user in local backend (service user) 
   shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username rpmfbender --password {{ rpmfbender_password  }} --email 'dev-robot@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa"

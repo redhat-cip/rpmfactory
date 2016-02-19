@@ -1,22 +1,4 @@
 ---
-- hosts: managesf
-  user: root
-  gather_facts: no
-  pre_tasks:
-    - name: Wait for cloud-init success
-      wait_for: path=/var/log/cloud-init-output.log search_regex="^SUCCESS 1node-allinone$"
-  roles:
-    - sf-rpmfactory
-    # Disabled until rcip-dev support swift
-    # - sf-swift
-  environment:
-    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
-  vars:
-    os_env:
-      OS_USERNAME: "{{ os_username }}"
-      OS_AUTH_URL: "{{ os_auth_url }}"
-      OS_TENANT_NAME: "{{ os_tenant_name }}"
-      OS_PASSWORD: "{{ os_password }}"
 
 - hosts: koji
   roles:
@@ -29,3 +11,27 @@
     - koji-web
     - koji-rpmfactory
     - koji-builder
+
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Fetch Koji auto-generated client certificate
+      shell: sudo -u centos scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no centos@koji:/srv/jenkins-koji.tgz /tmp/jenkins-koji.tgz
+      tags:
+        - rpmf_koji_cert
+    - name: Push Koji auto-generated client certificate SF side
+      shell: sudo -u centos scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/jenkins-koji.tgz root@managesf:/etc/jenkins-koji.tgz 
+      tags:
+        - rpmf_koji_cert
+
+- hosts: managesf
+  user: root
+  gather_facts: no
+  pre_tasks:
+    - name: Wait for cloud-init success
+      wait_for: path=/var/log/cloud-init-output.log search_regex="^SUCCESS 1node-allinone$"
+  roles:
+    - sf-rpmfactory
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/.local/bin:/root/bin"
