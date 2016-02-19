@@ -18,9 +18,9 @@ set -e
 
 [ -n "$DEBUG" ] && set -x
 
-target_label='cloud7-openstack-liberty-el7'
-koji_server='koji-rpmfactory.ring.enovance.com'
-rpmfactory_server='rpmfactory.beta.rdoproject.org'
+target_label="${KOJI_BUILD_TARGET_TAG}"
+koji_server="${KOJI_BUILD_SERVER}"
+rpmfactory_server="${SF_HOST}"
 
 currentdir=$(dirname "$0")
 koji_ui_tasks_uri="http://${koji_server}/koji/taskinfo?taskID="
