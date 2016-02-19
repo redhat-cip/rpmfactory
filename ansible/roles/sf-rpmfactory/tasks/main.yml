@@ -15,8 +15,12 @@
 # Create rpmfbender user
 - name: Add rpmfbender user in local backend (service user) 
   shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username rpmfbender --password {{ rpmfbender_password  }} --email 'dev-robot@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa"
+  tags:
+    - rpmf_service_user
 - name: Activate rpmfbender user (force cauth to register the user)
   shell: "sfmanager --url http://{{ fqdn }} --auth rpmfbender:{{ rpmfbender_password }} user update --username rpmfbender --password {{ rpmfbender_password  }}"
+  tags:
+    - rpmf_service_user
 
 # Create and maintain updated gating_scripts repo
 - include: project_create.yaml project=gating_scripts
@@ -34,15 +38,31 @@
     - "git fetch --all"
     - "git reset --hard origin/master --"
     - "git clean -f -d"
+  tags:
+    - rpmf_install_jjb_base
+    - rpmf_install_nodepool_base
 - copy: src=../files/jobs/rpmfactory.yaml dest=config/jobs/rpmfactory.yaml
+  tags:
+    - rpmf_install_jjb_base
 - copy: src=../files/nodepool/rpmfactory-base.sh dest=config/nodepool/rpmfactory-base.sh
+  tags:
+    - rpmf_install_nodepool_base
 - name: Add jobs to local config repo
   shell: chdir=config {{ item }}
   with_items:
-    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Add rpmfactory jobs' || true"
+    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Add rpmfactory base builder and nodepool base' || true"
+  tags:
+    - rpmf_install_jjb_base
+    - rpmf_install_nodepool_base
 - name: Check for a gating script update
   command: chdir=config git diff HEAD origin/master
   register: diff
+  tags:
+    - rpmf_install_jjb_base
+    - rpmf_install_nodepool_base
 - name: Submit jobs to config repo and wait for validation before submition
   when: diff.stdout != ''
   shell: chdir=config submit_and_wait.py --approve
+  tags:
+    - rpmf_install_jjb_base
+    - rpmf_install_nodepool_base

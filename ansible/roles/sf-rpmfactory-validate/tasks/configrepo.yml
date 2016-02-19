@@ -25,6 +25,10 @@
         }]
     }"
 
+- name: Copy nodepool-demo image script
+  when: sfconfiged.rc
+  copy: src={{ image_config_script }} dest=config/nodepool/{{ image_config_script }} mode="u=rwx,g=rx,o=rx"
+
 - name: Adds nodepool label
   when: sfconfiged.rc
   command: >
@@ -37,9 +41,9 @@
 
 - name: Commit change
   when: sfconfiged.rc
-  command: chdir=config  {{ item }}
+  shell: chdir=config  {{ item }}
   with_items:
-      - 'git commit -a -m "Adds {{ node_label }} node label"'
+      - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Adds {{ node_label }} node label' || true"
       - 'submit_and_wait.py --approve'
 
 - command: chdir=config cat .git/refs/heads/master

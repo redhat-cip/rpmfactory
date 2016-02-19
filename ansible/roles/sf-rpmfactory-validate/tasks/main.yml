@@ -2,65 +2,90 @@
 
 # Prepare nodepool conf and build rpmfactory base image
 - include: "sfconfig.yml"
+  tags:
+    - prepare_rpmf_validation_nodepool
 - include: "configrepo.yml"
+  tags:
+    - prepare_rpmf_validation_nodepool
 - include: "wait.yml"
+  tags:
+    - prepare_rpmf_validation_nodepool
 
 # Workaround to wait for hieraedit to land in SF
 - name: Copy modified version of hieraedit.py (temp)
   copy: src=../files/hieraedit.py dest=/usr/local/bin/
+  tags:
+    - prepare_rpmf_validation
 
 # Create a project p1 (mirror) and p1-distgit (distgit)
 - include: project_create.yaml project=p1
+  tags:
+    - prepare_rpmf_validation
 - name: Reset p1
   command: chdir=config {{ item }}
   with_items:
     - git fetch --all
     - git reset --hard origin/master --
+  tags:
+    - prepare_rpmf_validation
 
 - include: project_create.yaml project=p1-distgit
+  tags:
+    - prepare_rpmf_validation
 - name: Reset p1-distgit
   command: chdir=config {{ item }}
   with_items:
     - git fetch --all
     - git reset --hard origin/master --
+  tags:
+    - prepare_rpmf_validation
 
-- name: Populate p1 with a fake RPM .spec file
+- name: Populate p1-distgit with a fake RPM .spec file
   copy: src=../files/p1.spec dest=build-p1-distgit/
-- name: Direct submit p1-distgit change
+  tags:
+    - prepare_rpmf_validation
+- name: Direct submit p1-distgit changes
   shell: chdir=build-p1-distgit {{ item }}
   with_items:
     - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Add default .spec file' || true"
     - "git push -f gerrit"
+  tags:
+    - prepare_rpmf_validation
 
-- name: Clean previous job to be triggered for p1
-  command: hieraedit.py --yaml config/zuul/projects.yaml --delete name projects p1
+- name: Install jobs for testing
+  copy: src=../files/demo.yaml dest=config/jobs/
+  tags:
+    - prepare_rpmf_validation
 
-- name: Configure job to be triggered for p1
-  command: >
-    hieraedit.py --yaml config/zuul/projects.yaml --append --eval projects \
-        "{'name': 'p1',
-           'check': ['tox-validate',],
-        }"
-
-- name: Clean previous job to be triggered for p1-distgit
+- name: Clean previous jobs to be triggered for p1-distgit
   command: hieraedit.py --yaml config/zuul/projects.yaml --delete name projects p1-distgit
+  tags:
+    - prepare_rpmf_validation
 
-- name: Configure job to be triggered for p1-distgit
+- name: Configure jobs to be triggered for p1-distgit
   command: >
     hieraedit.py --yaml config/zuul/projects.yaml --append --eval projects \
         "{'name': 'p1-distgit',
-           'check': ['pkg-validate',],
-           'gate': ['pkg-validate', 'pkg-export'],
+           'check': ['package-validate',],
+           'gate': ['package-validate', 'package-export'],
         }"
+  tags:
+    - prepare_rpmf_validation
 
 - name: Commit config repo changes
   shell: chdir=config  {{ item }}
   with_items:
       - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Adds Zuul config for project p1 and p1-distgit' || true"
+  tags:
+    - prepare_rpmf_validation
 
 - name: Check for a change in local config repo
   command: chdir=config git diff HEAD origin/master
   register: diff
+  tags:
+    - prepare_rpmf_validation
 - name: Submit jobs to config repo and wait for validation before submition
   when: diff.stdout != ''
   shell: chdir=config submit_and_wait.py --approve
+  tags:
+    - prepare_rpmf_validation

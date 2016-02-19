@@ -1,0 +1,22 @@
+- job:
+    name: 'package-validate'
+    defaults: global
+    builders:
+      - base-pkg-validation
+      - shell: |
+          echo "Passed !"
+    triggers:
+      - zuul
+    node: rpmfactory-base-worker
+
+- job:
+    name: 'package-export'
+    defaults: global
+    builders:
+      - base-pkg-exportation
+      - shell: |
+          echo "Simulate export ..."
+          echo "Exported !"
+    triggers:
+      - zuul
+    node: rpmfactory-base-worker
