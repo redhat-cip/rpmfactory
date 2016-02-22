@@ -24,12 +24,21 @@
 
 # Create and maintain updated gating_scripts repo
 - include: project_create.yaml project=gating_scripts
+  tags:
+    - rpmf_install_gating_base
 - copy: src=../files/gating/ dest=build-gating_scripts/
+  tags:
+    - rpmf_install_gating_base
+- template: src=../templates/rpm-koji-gating-lib.rc.j2 dest=build-gating_scripts/rpm-koji-gating-lib.rc
+  tags:
+    - rpmf_install_gating_base
 - name: Add rpmfactory gating scripts
   shell: chdir=build-gating_scripts {{ item }}
   with_items:
     - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Update gating scripts' || true"
     - "git push -f gerrit"
+  tags:
+    - rpmf_install_gating_base
 
 # Push rpmfactory jjb in the config repo
 - name: Reset local config repo

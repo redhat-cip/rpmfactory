@@ -2,7 +2,8 @@
     name: 'package-validate'
     defaults: global
     builders:
-      - base-pkg-validation
+      - base-pkg-validation:
+          buildtarget: "centos7"
       - shell: |
           echo "Passed !"
     triggers:
@@ -13,7 +14,8 @@
     name: 'package-export'
     defaults: global
     builders:
-      - base-pkg-exportation
+      - base-pkg-exportation:
+          buildtarget: "centos7"
       - shell: |
           echo "Simulate export ..."
           echo "Exported !"

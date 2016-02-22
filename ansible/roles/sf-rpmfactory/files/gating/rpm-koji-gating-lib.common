@@ -18,8 +18,10 @@ set -e
 
 [ -n "$DEBUG" ] && set -x
 
-target_label="${KOJI_BUILD_TARGET_TAG}"
-koji_server="${KOJI_BUILD_SERVER}"
+source rpm-koji-gating-lib.rc
+
+target_label="$1"
+koji_server="${KOJI_SERVER}"
 rpmfactory_server="${SF_HOST}"
 
 currentdir=$(dirname "$0")
@@ -28,7 +30,7 @@ rpmfactory_clone_url="http://${rpmfactory_server}/r"
 rpmbuild="${HOME}/rpmbuild"
 
 zuul_ref=$(echo $ZUUL_REF |awk -F/ '{print $NF}')
-validatedurl="http://koji-rpmfactory.ring.enovance.com/kojifiles/repos/cloud7-openstack-liberty-el7-build/latest/x86_64/"
+validatedurl="http://${koji_server}/kojifiles/repos/${target_label}-build/latest/x86_64/"
 
 [ -z "${WORKSPACE}" ] && {
   echo "Please set WORKSPACE environment variable"
