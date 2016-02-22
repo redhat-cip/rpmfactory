@@ -1,0 +1,10 @@
+[Unit]
+Description=Fake HTTP server for RPMFactory test
+
+[Service]
+ExecStart=/usr/bin/python -m SimpleHTTPServer 8999
+WorkingDirectory=/tmp/fake_server_rootdir/
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

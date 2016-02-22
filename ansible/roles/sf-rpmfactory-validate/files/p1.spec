@@ -3,7 +3,7 @@ Name: p1
 Version: 1.0
 Release: 1
 License: GPL
-Source: http://rpmfactory.sftests.com/pub/p1.1.0.tgz
+Source: http://rpmfactory.sftests.com:8999/p1-1.0.tgz
 Packager: John Doe <john@doe.com>
 
 %description

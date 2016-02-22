@@ -11,6 +11,28 @@
   tags:
     - prepare_rpmf_validation_nodepool
 
+# Prepare a fake HTTP server to host fake RPM sources
+- name: Create /tmp/fake_server_rootdir
+  shell: mkdir -p /tmp/fake_server_rootdir
+  tags:
+    - prepare_rpmf_validation_fake_server
+- name: Copy fakeserver systemd service
+  copy: src=../files/fakeserver.service dest=/lib/systemd/system/fakeserver.service
+  tags:
+    - prepare_rpmf_validation_fake_server
+- name: Reload systemd daemons
+  shell: systemctl daemon-reload
+  tags:
+    - prepare_rpmf_validation_fake_server
+- name: Start fake server on port 8999
+  service: name=fakeserver state=started
+  tags:
+    - prepare_rpmf_validation_fake_server
+- name: Provision p1 tarball
+  copy: src=../files/p1-1.0.tgz dest=/tmp/fake_server_rootdir/
+  tags:
+    - prepare_rpmf_validation_fake_server
+
 # Workaround to wait for hieraedit to land in SF
 - name: Copy modified version of hieraedit.py (temp)
   copy: src=../files/hieraedit.py dest=/usr/local/bin/
