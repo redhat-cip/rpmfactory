@@ -33,6 +33,13 @@
   tags:
     - prepare_rpmf_validation_fake_server
 
+# Fetch secret file UUID from credential binding
+- name: Fetch client cert UUID in Credential Binding
+  shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} get kojiclientcreds
+  register: cb_result
+  tags:
+    - rpmf_koji_fetch_cred_uuid
+
 # Workaround to wait for hieraedit to land in SF
 - name: Copy modified version of hieraedit.py (temp)
   copy: src=../files/hieraedit.py dest=/usr/local/bin/
@@ -75,7 +82,7 @@
     - prepare_rpmf_validation
 
 - name: Install jobs for testing
-  copy: src=../files/demo.yaml dest=config/jobs/
+  template: src=../templates/demo.yaml.j2 dest=config/jobs/demo.yaml
   tags:
     - prepare_rpmf_validation
 

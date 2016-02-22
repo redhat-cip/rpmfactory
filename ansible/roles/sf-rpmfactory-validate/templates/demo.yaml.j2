@@ -8,6 +8,11 @@
           echo "Passed !"
     triggers:
       - zuul
+    wrappers:
+      - credentials-binding:
+        - file:
+           credential-id: {{ cb_result.stdout }}
+           variable: CLIENTSECRET
     node: rpmfactory-base-worker
 
 - job:
@@ -21,4 +26,9 @@
           echo "Exported !"
     triggers:
       - zuul
+    wrappers:
+      - credentials-binding:
+        - file:
+           credential-id: {{ cb_result.stdout }}
+           variable: CLIENTSECRET
     node: rpmfactory-base-worker

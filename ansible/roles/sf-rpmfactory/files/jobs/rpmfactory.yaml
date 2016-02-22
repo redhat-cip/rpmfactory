@@ -15,6 +15,9 @@
           [ "$ZUUL_REF" = "master" ] && export ZUUL_REF=None || true
           echo "Clean workspace"
           rm -Rf ./*
+          # Set koji client identity
+          echo "Set koji client identity"
+          tar -xvzf ${CLIENTSECRET} -C /home/jenkins/.koji/
 
 - builder:
     name: 'base-pkg-validation'
