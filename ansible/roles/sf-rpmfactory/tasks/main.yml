@@ -53,7 +53,7 @@
 - copy: src=../files/jobs/rpmfactory.yaml dest=config/jobs/rpmfactory.yaml
   tags:
     - rpmf_install_jjb_base
-- copy: src=../files/nodepool/rpmfactory-base.sh dest=config/nodepool/rpmfactory-base.sh
+- template: src=../templates/rpmfactory-base.sh.j2 dest=config/nodepool/rpmfactory-base.sh
   tags:
     - rpmf_install_nodepool_base
 - name: Add jobs to local config repo
