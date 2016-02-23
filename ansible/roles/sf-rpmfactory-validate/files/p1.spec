@@ -8,3 +8,13 @@ Packager: John Doe <john@doe.com>
 
 %description
 What did you expect ?
+
+%prep
+%setup -q -n p1
+
+%install
+mkdir -p %{buildroot}/srv/p1
+cp run_tests.sh %{buildroot}/srv/p1
+
+%files
+%attr(0755,root,root) /srv/p1
