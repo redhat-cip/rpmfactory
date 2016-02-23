@@ -58,7 +58,7 @@
   tags:
     - rpmf_install_jjb_base
     - rpmf_install_nodepool_base
-- copy: src=../files/jobs/rpmfactory.yaml dest=config/jobs/rpmfactory.yaml
+- template: src=../templates/rpmfactory.yaml.j2 dest=config/jobs/rpmfactory.yaml
   tags:
     - rpmf_install_jjb_base
 - template: src=../templates/rpmfactory-base.sh.j2 dest=config/nodepool/rpmfactory-base.sh

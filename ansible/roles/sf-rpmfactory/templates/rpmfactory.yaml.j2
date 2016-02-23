@@ -25,7 +25,7 @@
     builders:
       - prepare-rpmfactory-workspace
       - shell: |
-          git clone http://rpmfactory.sftests.com/r/gating_scripts
+          git clone http://{{ fqdn }}/r/gating_scripts
           cd gating_scripts
           ./pkg-validate.sh {buildtarget}
 
@@ -35,6 +35,6 @@
     builders:
       - prepare-rpmfactory-workspace
       - shell: |
-          git clone http://rpmfactory.sftests.com/r/gating_scripts
+          git clone http://{{ fqdn }}/r/gating_scripts
           cd gating_scripts
           ./pkg-export.sh {buildtarget}
