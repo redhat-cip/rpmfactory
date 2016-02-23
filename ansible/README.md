@@ -10,5 +10,9 @@
 
 ```shell
 ansible-galaxy install -r Ansiblefile.yml --force
-ansible-playbook site.yml --diff
+```
+## Install RPMFactory default on an existing SF
+```shell
+# Make sure to set the right defaults roles/sf-rpmfactory/defaults/main.yaml
+ansible-playbook -i hosts rpmfactory.yml
 ```
