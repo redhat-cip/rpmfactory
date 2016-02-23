@@ -1,6 +1,12 @@
 ---
-# Sf Access
+# SF Access
 fqdn: "rpmfactory.sftests.com"
 admin_password: "userpass"
+
+# Default password for rpmfbender service user
+# Please set a strong one
 rpmfbender_password: "pwdtochange"
+
+# Koji server
 koji_server: "koji.rpmfactory.sftests.com"
+koji_client_cert_path: "/tmp/jenkins-koji.tgz"

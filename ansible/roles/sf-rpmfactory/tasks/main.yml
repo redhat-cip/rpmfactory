@@ -6,6 +6,12 @@
   tags:
     - rpmf_koji_cert
 
+# Copy Koji client certificate into the node
+- name: Copy koji client certificate into the node
+  copy: src={{ koji_client_cert_path }} dest=/etc/jenkins-koji.tgz
+  tags:
+    - rpmf_koji_cert
+
 # Install Koji client cert in Credential Binding
 - name: Install Koji client cert in Credential Binding
   shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} add /etc/jenkins-koji.tgz kojiclientcreds

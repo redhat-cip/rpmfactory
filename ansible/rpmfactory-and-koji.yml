@@ -20,10 +20,6 @@
       shell: sudo -u centos scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no centos@koji:/srv/jenkins-koji.tgz /tmp/jenkins-koji.tgz
       tags:
         - rpmf_koji_cert
-    - name: Push Koji auto-generated client certificate SF side
-      shell: sudo -u centos scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/jenkins-koji.tgz root@managesf:/etc/jenkins-koji.tgz 
-      tags:
-        - rpmf_koji_cert
 
 - hosts: managesf
   user: root
