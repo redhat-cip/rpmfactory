@@ -27,7 +27,6 @@
       - shell: |
           git clone http://rpmfactory.sftests.com/r/gating_scripts
           cd gating_scripts
-          chmod +x ./pkg-validate.sh
           ./pkg-validate.sh {buildtarget}
 
 - builder:
@@ -38,5 +37,4 @@
       - shell: |
           git clone http://rpmfactory.sftests.com/r/gating_scripts
           cd gating_scripts
-          chmod +x ./pkg-export.sh
           ./pkg-export.sh {buildtarget}

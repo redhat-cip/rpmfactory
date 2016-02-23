@@ -32,6 +32,14 @@
 - template: src=../templates/rpm-koji-gating-lib.rc.j2 dest=build-gating_scripts/rpm-koji-gating-lib.rc
   tags:
     - rpmf_install_gating_base
+- name: Set execution bit
+  file: path={{ item }} mode=0755
+  with_items:
+    - build-gating_scripts/pkg-export.sh
+    - build-gating_scripts/pkg-validate.sh
+    - build-gating_scripts/build-release-rpm.sh
+  tags:
+    - rpmf_install_gating_base
 - name: Add rpmfactory gating scripts
   shell: chdir=build-gating_scripts {{ item }}
   with_items:
