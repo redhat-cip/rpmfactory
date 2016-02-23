@@ -47,18 +47,7 @@
   tags:
     - prepare_rpmf_validation
 
-# Create a project p1 (mirror) and p1-distgit (distgit)
-- include: project_create.yaml project=p1
-  tags:
-    - prepare_rpmf_validation
-- name: Reset p1
-  command: chdir=build-p1 {{ item }}
-  with_items:
-    - git fetch --all
-    - git reset --hard origin/master --
-  tags:
-    - prepare_rpmf_validation
-
+# Create p1-distgit project
 - include: project_create.yaml project=p1-distgit
   tags:
     - prepare_rpmf_validation
