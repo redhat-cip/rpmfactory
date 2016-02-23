@@ -48,7 +48,7 @@ zuul-cloner --workspace $workdir $rpmfactory_clone_url $ZUUL_PROJECT
 # Build all SRPMS
 echo -e "\n--- Build SRPM for $ZUUL_PROJECT ---"
 pushd ${workdir}/$ZUUL_PROJECT > /dev/null
-git log -n1
+git log --simplify-merges -n1
 pname=$(egrep "^Name:" *.spec | awk '{print $2}')
 build_srpm
 srpm=$(ls ${rpmbuild}/SRPMS/${pname}*.src.rpm)

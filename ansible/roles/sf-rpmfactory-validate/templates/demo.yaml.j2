@@ -5,7 +5,9 @@
       - base-pkg-validation:
           buildtarget: "dist-centos7"
       - shell: |
-          echo "Passed !"
+          sudo yum -y install /home/jenkins/rpmbuild/RPMS/noarch/rpmfactory-temp-release-1.0-1.noarch.rpm
+          yum search p1
+          sudo yum -y install p1
     triggers:
       - zuul
     wrappers:

@@ -19,13 +19,12 @@ if [ $# != 2 ]; then
     exit 1
 fi
 
-cat > rdo-temp-release.spec <<EOS
+cat > rpmfactory-temp-release.spec <<EOS
 Summary: yum repo files for testing
-Name: rdo-temp-release
+Name: rpmfactory-temp-release
 Version: 1.0
 Release: 1
 License: GPL
-Requires: epel-release
 BuildArch: noarch
 
 %description
@@ -39,15 +38,15 @@ rm -rf \$RPM_BUILD_ROOT
 
 mkdir -p \$RPM_BUILD_ROOT/etc/yum.repos.d
 
-cat > \$RPM_BUILD_ROOT/etc/yum.repos.d/rdo-temp-release.repo <<EOF
+cat > \$RPM_BUILD_ROOT/etc/yum.repos.d/rpmfactory-temp-release.repo <<EOF
 [validated]
-name=validated packages for RDO testing
+name=validated packages for testing
 baseurl=$2
 enabled=1 
 gpgcheck=0 
 
 [temp]
-name=temporary packages for RDO testing
+name=temporary packages for testing
 baseurl=$1
 enabled=1 
 gpgcheck=0 
@@ -63,6 +62,6 @@ rm -rf \$RPM_BUILD_ROOT
 %changelog
 EOS
 
-rpmbuild -bb rdo-temp-release.spec
+rpmbuild -bb rpmfactory-temp-release.spec
 
 # build-release-rpm.sh ends here

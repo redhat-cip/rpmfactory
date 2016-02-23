@@ -108,7 +108,7 @@ function build_srpms() {
     project=$(echo $chg | cut -d':' -f1)
     echo -e "\n--- Build SRPM for $project ---"
     pushd "${workdir}/${project}" > /dev/null
-    git log -n1
+    git log --simplify-merges -n1
     build_srpm
     fpname=$(echo $rpmbuild_output | awk -F'/' '{print $NF}')
     pname=$(python -c "import sys; from rpmUtils.miscutils import splitFilename; print splitFilename(sys.argv[1])[0]" $fpname)
@@ -171,6 +171,6 @@ function create_local_repo() {
   find $temprepopath
   # Build release RPM with temporary repo included
   $currentdir/build-release-rpm.sh $url $validatedurl &> /dev/null
-  rm rdo-temp-release.spec
+  rm rpmfactory-temp-release.spec
 }
 

@@ -39,6 +39,7 @@
   register: cb_result
   tags:
     - rpmf_koji_fetch_cred_uuid
+    - prepare_rpmf_validation
 
 # Workaround to wait for hieraedit to land in SF
 - name: Copy modified version of hieraedit.py (temp)
