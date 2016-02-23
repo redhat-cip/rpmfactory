@@ -19,12 +19,20 @@
     - rpmf_koji_cert
 
 # Create rpmfbender user
-- name: Add rpmfbender user in local backend (service user) 
-  shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username rpmfbender --password {{ rpmfbender_password  }} --email 'dev-robot@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa"
+- name: Check bender service user already registered
+  shell: "sfmanager --url http://{{ fqdn }} --auth {{ bender_name }}:{{ bender_password }} user update --username {{ bender_name }} --password {{ bender_password  }}"
+  register: bender_check_result
+  ignore_errors: True
   tags:
     - rpmf_service_user
-- name: Activate rpmfbender user (force cauth to register the user)
-  shell: "sfmanager --url http://{{ fqdn }} --auth rpmfbender:{{ rpmfbender_password }} user update --username rpmfbender --password {{ rpmfbender_password  }}"
+- name: Add bender service user in local backend
+  shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username {{ bender_name }} --password {{ bender_password  }} --email '{{ bender_email_name }}@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa"
+  when: bender_check_result.rc != 0
+  tags:
+    - rpmf_service_user
+- name: Activate bender service user (force cauth to register the user)
+  shell: "sfmanager --url http://{{ fqdn }} --auth {{ bender_name }}:{{ bender_password }} user update --username {{ bender_name }} --password {{ bender_password  }}"
+  when: bender_check_result.rc != 0
   tags:
     - rpmf_service_user
 

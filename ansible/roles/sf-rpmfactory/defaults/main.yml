@@ -3,9 +3,11 @@
 fqdn: "rpmfactory.sftests.com"
 admin_password: "userpass"
 
-# Default password for rpmfbender service user
+# Defaut for bender service user
+bender_name: "sfrdobender"
+bender_email_name: "sfrdobender"
 # Please set a strong one
-rpmfbender_password: "pwdtochange"
+bender_password: "pwdtochange"
 
 # Koji server
 koji_server: "koji.rpmfactory.sftests.com"
