@@ -3,7 +3,7 @@
     defaults: global
     builders:
       - base-pkg-validation:
-          buildtarget: "centos7"
+          buildtarget: "dist-centos7"
       - shell: |
           echo "Passed !"
     triggers:
@@ -20,7 +20,7 @@
     defaults: global
     builders:
       - base-pkg-exportation:
-          buildtarget: "centos7"
+          buildtarget: "dist-centos7"
       - shell: |
           echo "Simulate export ..."
           echo "Exported !"

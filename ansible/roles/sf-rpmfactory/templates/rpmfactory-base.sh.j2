@@ -44,7 +44,7 @@ ca = ~/.koji/clientca.crt
 ;certificate of the CA that issued the HTTP server certificate
 serverca = ~/.koji/serverca.crt
 "
-echo $kojiconf | sudo tee /etc/koji.conf
+echo "$kojiconf" | sudo tee /etc/koji.conf
 
 # Prepare jenkins user config for koji
 sudo mkdir /home/jenkins/.koji
