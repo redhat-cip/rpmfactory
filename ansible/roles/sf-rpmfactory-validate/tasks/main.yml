@@ -52,7 +52,7 @@
   tags:
     - prepare_rpmf_validation
 - name: Reset p1
-  command: chdir=config {{ item }}
+  command: chdir=build-p1 {{ item }}
   with_items:
     - git fetch --all
     - git reset --hard origin/master --
@@ -63,7 +63,7 @@
   tags:
     - prepare_rpmf_validation
 - name: Reset p1-distgit
-  command: chdir=config {{ item }}
+  command: chdir=build-p1-distgit {{ item }}
   with_items:
     - git fetch --all
     - git reset --hard origin/master --
@@ -119,3 +119,28 @@
   shell: chdir=config submit_and_wait.py --approve
   tags:
     - prepare_rpmf_validation
+
+- name: Reset p1-distgit
+  command: chdir=build-p1-distgit {{ item }}
+  with_items:
+    - git fetch --all
+    - git reset --hard origin/master --
+  tags:
+    - create_a_p1_distgit_review
+- name: Bump release version
+  shell: chdir=build-p1-distgit {{ item }}
+  with_items:
+    - "sed 's/^Release: 1/Release: 2/' -i p1.spec"
+    - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Bump p1' || true"
+  tags:
+    - create_a_p1_distgit_review
+- name: Check for a change in local p1-distgit repo
+  shell: chdir=build-p1-distgit git diff HEAD origin/master
+  register: p1diff
+  tags:
+    - create_a_p1_distgit_review
+- name: Submit change to p1-distgit repo and wait for validation
+  when: p1diff.stdout != ''
+  shell: chdir=build-p1-distgit submit_and_wait.py --delay 300
+  tags:
+    - create_a_p1_distgit_review
