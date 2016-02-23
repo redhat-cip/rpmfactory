@@ -106,7 +106,3 @@ cat ~/.ssh/id_rsa.pub | tee ansible/roles/mirror-rpmfactory/files/authorized_key
 
 # TODO:
 # make sure default security group allow ssh
-# configure config repos
-# run sf integration test to setup nodepool and swift
-# import rdo projects
-# validate
