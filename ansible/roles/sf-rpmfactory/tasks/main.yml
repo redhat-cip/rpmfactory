@@ -16,11 +16,12 @@
 - name: Check Koji client cert exists in Credential Binding
   shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} get kojiclientcreds
   register: cb_check_result
+  ignore_errors: True
   tags:
     - rpmf_koji_cert
 - name: Install Koji client cert in Credential Binding
   shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} add /etc/jenkins-koji.tgz kojiclientcreds
-  when: cb_check_result.stdout == ""
+  when: cb_check_result.rc != 0
   tags:
     - rpmf_koji_cert
 
