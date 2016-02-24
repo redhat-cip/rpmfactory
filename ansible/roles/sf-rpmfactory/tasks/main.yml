@@ -13,8 +13,14 @@
     - rpmf_koji_cert
 
 # Install Koji client cert in Credential Binding
+- name: Check Koji client cert exists in Credential Binding
+  shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} get kojiclientcreds
+  register: cb_check_result
+  tags:
+    - rpmf_koji_cert
 - name: Install Koji client cert in Credential Binding
   shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} add /etc/jenkins-koji.tgz kojiclientcreds
+  when: cb_check_result.stdout == ""
   tags:
     - rpmf_koji_cert
 
