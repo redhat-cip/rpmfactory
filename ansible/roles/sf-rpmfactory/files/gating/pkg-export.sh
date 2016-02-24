@@ -30,10 +30,7 @@ echo "\n\n=== Wait for other belonging jobs for this change to finish ==="
 # of the shared queue before we start the build on koji
 # wait_for_other_jobs.py handles the condition of releasing
 # the wait.
-
-# TODO(fbo) use that when using 2.1.5
-#[ -x /usr/local/bin/wait_for_other_jobs.py ] && /usr/local/bin/wait_for_other_jobs.py
-../wait_for_other_jobs.py
+[ -x /usr/local/bin/wait_for_other_jobs.py ] && /usr/local/bin/wait_for_other_jobs.py
 
 # We are there so all voting jobs finished with success
 echo "\n===  Start publish RPMS for job ${ZUUL_PROJECT} ==="
