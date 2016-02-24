@@ -19,6 +19,14 @@ if [ -d ${TARGET} ] ; then
       mv vault.centos.org/centos/7/cloud/Source/* .
       rm -rf vault.centos.org
     popd
+    for release in liberty kilo
+    do
+      pushd "${TARGET}"
+        cd x86_64
+        cp -r openstack-${release}/common openstack-${release}-common
+        createrepo openstack-${release}-common
+      popd
+    done
   fi
   /bin/rm -f /var/lock/subsys/rsync_updates
   echo "Change SELinux context, (httpd_sys_content_t)."
