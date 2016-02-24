@@ -5,6 +5,7 @@
   copy: src=../../../../tools/cb-add-get.py dest=/usr/local/bin/cb-add-get.py mode=0755
   tags:
     - rpmf_koji_cert
+    - rpmf_service_user
 
 # Copy Koji client certificate into the node
 - name: Copy koji client certificate into the node
@@ -33,13 +34,24 @@
   tags:
     - rpmf_service_user
 - name: Add bender service user in local backend
-  shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username {{ bender_name }} --password {{ bender_password  }} --email '{{ bender_email_name }}@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa"
+  shell: "sfmanager --url http://{{ fqdn }} --auth admin:{{ admin_password }} user create --username {{ bender_name }} --password {{ bender_password  }} --email '{{ bender_email_name }}@{{ fqdn }}' --fullname 'Bender RPM Factory' --ssh-key /root/sf-bootstrap-data/ssh_keys/jenkins_rsa.pub"
   when: bender_check_result.rc != 0
   tags:
     - rpmf_service_user
 - name: Activate bender service user (force cauth to register the user)
   shell: "sfmanager --url http://{{ fqdn }} --auth {{ bender_name }}:{{ bender_password }} user update --username {{ bender_name }} --password {{ bender_password  }}"
   when: bender_check_result.rc != 0
+  tags:
+    - rpmf_service_user
+- name: Check Bender service user private key is in Credential Binding
+  shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} get bendercreds
+  register: cb_check_result2
+  ignore_errors: True
+  tags:
+    - rpmf_service_user
+- name: Install Bender service user private key in Credential Binding
+  shell: cb-add-get.py {{ fqdn }} admin:{{ admin_password }} add /root/sf-bootstrap-data/ssh_keys/jenkins_rsa bendercreds
+  when: cb_check_result2.rc != 0
   tags:
     - rpmf_service_user
 
