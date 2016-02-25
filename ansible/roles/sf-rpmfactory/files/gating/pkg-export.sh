@@ -46,14 +46,15 @@ zuul-cloner --workspace $workdir $rpmfactory_clone_url $ZUUL_PROJECT
 echo -e "\n--- Build SRPM for $ZUUL_PROJECT ---"
 pushd ${workdir}/$ZUUL_PROJECT > /dev/null
 git log --simplify-merges -n1
-pname=$(egrep "^Name:" *.spec | awk '{print $2}')
 build_srpm
+fpname=$(echo $rpmbuild_output | awk -F'/' '{print $NF}')
+pname=$(python -c "import sys; from rpmUtils.miscutils import splitFilename; print splitFilename(sys.argv[1])[0]" $fpname)
 srpm=$(ls ${rpmbuild}/SRPMS/${pname}*.src.rpm)
 popd > /dev/null
 
 # Start builds on koji
 echo -e "\n--- Start koji build for $ZUUL_PROJECT ---"
-start_build_on_koji $srpm $ZUUL_PROJECT "" 
+start_build_on_koji $srpm $ZUUL_PROJECT ""
 
 # Check build status koji side
 while check_build_on_koji $ZUUL_PROJECT; do
