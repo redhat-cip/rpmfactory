@@ -1,5 +1,4 @@
 ---
-
 # Prepare nodepool conf and build rpmfactory base image
 - include: "sfconfig.yml"
   tags:
@@ -109,6 +108,11 @@
   tags:
     - prepare_rpmf_validation
 
+- name: Wait for config-update (new job)
+  wait_for: path=/var/lib/jenkins/jobs/package-validate
+- name: Wait for config-update (new layout)
+  wait_for: path=/var/log/zuul/zuul.log search_regex="Job package-validate"
+
 - name: Reset p1-distgit
   command: chdir=build-p1-distgit {{ item }}
   with_items:
@@ -130,6 +134,6 @@
     - create_a_p1_distgit_review
 - name: Submit change to p1-distgit repo and wait for validation
   when: p1diff.stdout != ''
-  shell: chdir=build-p1-distgit submit_and_wait.py --delay 300
+  shell: chdir=build-p1-distgit submit_and_wait.py --delay 600
   tags:
     - create_a_p1_distgit_review

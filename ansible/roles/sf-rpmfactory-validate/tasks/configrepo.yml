@@ -27,7 +27,7 @@
 
 - name: Copy nodepool-demo image script
   when: sfconfiged.rc
-  copy: src={{ image_config_script }} dest=config/nodepool/{{ image_config_script }} mode="u=rwx,g=rx,o=rx"
+  template: src=../templates/rpmfactory-validation.sh.j2 dest=config/nodepool/{{ image_config_script }} mode="u=rwx,g=rx,o=rx"
 
 - name: Adds nodepool label
   when: sfconfiged.rc
@@ -38,6 +38,11 @@
         'min-ready': 1,
         'providers': [{'name': 'default'}]
     }]"
+
+- name: Wait for config-check job
+  wait_for: path=/var/lib/jenkins/jobs/config-check
+- name: Wait for config-check layout
+  wait_for: path=/var/log/zuul/zuul.log search_regex="Job config-check"
 
 - name: Commit change
   when: sfconfiged.rc

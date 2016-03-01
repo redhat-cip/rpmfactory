@@ -32,11 +32,25 @@ echo "Installing: $PIP_DEPS"
     echo -e "[+] Removing nodepool slave"
     nova delete managesf.${DOMAIN} 2> /dev/null
     # FIXME: only destroy instance connected to nodepool network for this DOMAIN
-    #for h in $(nova list | grep 'template-.*-image-\|rpmfactory-worker-default-' | awk '{ print $2 }'); do nova delete $h; done
+    for h in $(nova list | grep "\(${DOMAIN}\|rpmfactory-base-worker\)" | awk '{ print $2 }'); do nova delete $h; done
     for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip; done
     echo -e "[+] Deleting the stack"
     heat stack-delete ${DOMAIN}
-    while [ ! -z "$(heat stack-list | grep ${DOMAIN})" ]; do echo -n "."; done
+    let RETRY=300
+    while [ ! -z "$(heat stack-list | grep ${DOMAIN})" ]; do
+        echo -n "."
+        let RETRY-=1
+        [ $RETRY -gt 0 ] || { echo "Fail to delete stack, retrying..."; break; }
+        sleep 0.5
+    done
+    heat stack-delete ${DOMAIN}
+    let RETRY=300
+    while [ ! -z "$(heat stack-list | grep ${DOMAIN})" ]; do
+        echo -n "."
+        let RETRY-=1
+        [ $RETRY -gt 0 ] || { echo "Fail to delete stack"; heat stack-show ${DOMAIN}; exit 1; }
+        sleep 0.5
+    done
     echo -e "\n[+] Stack deleted"
 }
 
@@ -48,7 +62,13 @@ openstack keypair show ${KP_NAME} || openstack keypair create --public-key ~/.ss
 # Start the stack
 echo -e "[+] Starting the stack"
 heat stack-create --template-file rpmfactory.hot.yaml ${DOMAIN} -P "key_name=${KP_NAME};domain=${DOMAIN}"
-while [ -z "$(heat stack-show ${DOMAIN} | grep CREATE_COMPLETE)" ]; do echo -n "."; done
+RETRY=1800
+while [ -z "$(heat stack-show ${DOMAIN} | grep CREATE_COMPLETE)" ]; do
+    echo -n "."
+    let RETRY-=1
+    [ $RETRY -gt 0 ] || { echo "Fail to start stack"; heat stack-show ${DOMAIN}; exit 1; }
+    sleep 0.5
+done
 echo -e "\n[+] Stack started"
 
 STACK_INFO=$(heat stack-show ${DOMAIN})
@@ -60,6 +80,18 @@ if [ -z "${KOJI_IP}" ] || [ -z "${SF_IP}" ] || [ -z "${SF_SLAVE_NETWORK}" ]; the
     echo "ERROR: Couldn't get instances ip"
     exit 1
 fi
+
+# Update security group for nodepool slave (default secgroup) and access to temp webserver for validation test
+echo -e "[+] Make sure security group are set"
+neutron security-group-rule-create default --protocol tcp --port-range-min 22 --port-range-max 22 --remote-ip-prefix 0.0.0.0/0
+MANAGESF_SECGROUP=$(neutron security-group-list | grep sf_ext_secgroup_http | awk '{ print $4 }')
+if [ -z "${MANAGESF_SECGROUP}" ]; then
+    echo "ERROR: Couldn't get sf_ext_secgroup_http security group from:"
+    neutron security-group-list
+    exit 1
+fi
+neutron security-group-rule-create ${MANAGESF_SECGROUP} --protocol tcp --port-range-min 8999 --port-range-max 8999 --remote-ip-prefix 0.0.0.0/0
+echo -e "\n[+] Security group configured"
 
 # Set /etc/hosts to resolve sftests.com domain
 grep -q koji.${DOMAIN} /etc/hosts || echo koji.${DOMAIN} | sudo tee -a /etc/hosts
@@ -75,16 +107,24 @@ ${SF_IP} managesf.${DOMAIN} ${DOMAIN}
 EOF
 for h in koji.${DOMAIN} managesf.${DOMAIN}; do
     echo "[+] Waiting for ssh $h:22"
+    RETRY=300
     while true; do
         [ -z "$(ssh-keyscan -p 22 $h 2> /dev/null)" ] || break
         echo -n "."
+        let RETRY-=1
+        [ $RETRY -gt 0 ] || { echo "Fail to connect $h"; exit 1; }
+        sleep 0.5
     done
     # Reset known host key
     ssh-keygen -R $h
     echo "[+] Waiting for ssh access..."
+    RETRY=300
     while true; do
         ssh -o BatchMode=yes -o StrictHostKeyChecking=no centos@$h hostname &> /dev/null && break
         echo -n "."
+        let RETRY-=1
+        [ $RETRY -gt 0 ] || { echo "Fail to ssh $h"; exit 1; }
+        sleep 0.5
     done
     # Adds sftests.com to /etc/hosts
     ssh -t -t $h "echo '${HOSTS}' | sudo tee -a /etc/hosts"
@@ -94,15 +134,16 @@ done
 sed -i ansible/roles/koji-rpmfactory/files/koji.conf -e "s/koji-rpmfactory.ring.enovance.com/koji.${DOMAIN}/"
 cat ~/.ssh/id_rsa.pub | tee ansible/roles/mirror-rpmfactory/files/authorized_keys > ansible/roles/koji-rpmfactory/files/authorized_keys
 
-
 # Install ansible galaxies
 (cd ansible; exec ansible-galaxy install -r Ansiblefile.yml --force)
+
+# Fix inventory
+sed -i ansible/preprod-hosts -e "s#rpmfactory.sftests.com#${DOMAIN}#g"
 
 # Start rpmfactory+koji deployment playbook
 (cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
 
 # Run rpmfactory integration test playbook
-(cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-integration-tests.yml --extra-vars "os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME} nodepool_net=${SF_SLAVE_NETWORK}")
-
-# TODO:
-# make sure default security group allow ssh
+EXTRA_VAR="os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME} nodepool_net=${SF_SLAVE_NETWORK}"
+EXTRA_VAR+=" sf_domain=${DOMAIN} sf_managesf_ip=${SF_IP} sf_koji_ip=${KOJI_IP}"
+(cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-integration-tests.yml --extra-vars "${EXTRA_VAR}")

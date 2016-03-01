@@ -1,0 +1,7 @@
+#!/bin/bash
+
+. rpmfactory-base.sh
+
+# TODO Put that in a template
+echo "{{ sf_managesf_ip }} {{ sf_domain }}" | sudo tee -a /etc/hosts
+echo "{{ sf_koji_ip }} koji.{{ sf_domain }}" | sudo tee -a /etc/hosts
