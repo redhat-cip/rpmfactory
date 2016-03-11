@@ -63,18 +63,6 @@
   tags:
     - koji-jenkins
 
-- name: Copy Koji configuration for jenkins user
-  copy: src=koji.conf dest=/var/www/html/conf/koji.conf owner=root group=root mode=0644
-  tags:
-    - koji-jenkins
-
-- name: Copy jenkins koji tgz to httpd directory
-  shell: "cp /srv/jenkins-koji.tgz /var/www/html/conf/"
-  args:
-    creates: "/var/www/html/conf/jenkins-koji.tgz"
-  tags:
-    - koji-jenkins
-
 - name: Fix rights on conf directory
   shell: "/bin/chcon -R -t public_content_rw_t /var/www/html/conf && touch /srv/.koji/.rightconf.done"
   args:
