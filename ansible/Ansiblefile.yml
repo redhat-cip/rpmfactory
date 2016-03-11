@@ -17,6 +17,10 @@
   name: koji-hub
   path: roles
 
+- src:  https://github.com/kostyrevaa/ansible-koji-client.git
+  name: koji-client
+  path: roles
+
 - src:  https://github.com/kostyrevaa/ansible-koji-ca.git
   name: koji-ca
   path: roles
