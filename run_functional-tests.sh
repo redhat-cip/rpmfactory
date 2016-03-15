@@ -137,13 +137,38 @@ cat ~/.ssh/id_rsa.pub | tee ansible/roles/mirror-rpmfactory/files/authorized_key
 # Install ansible galaxies
 (cd ansible; exec ansible-galaxy install -r Ansiblefile.yml --force)
 
-# Fix inventory
-sed -i ansible/preprod-hosts -e "s#rpmfactory.sftests.com#${DOMAIN}#g"
+# Create inventory
+inventory="
+[koji]
+koji.${DOMAIN}
+
+[managesf]
+managesf.${DOMAIN}
+
+# Defined for koji-hub role
+#TODO(sbadia) fix hub upstream
+[koji_web]
+koji.${DOMAIN}
+
+[koji_ca]
+koji.${DOMAIN}
+
+[koji_db]
+koji.${DOMAIN}
+
+[koji_builder]
+koji.${DOMAIN}
+
+[koji_hub]
+koji.${DOMAIN}
+"
+
+echo "$inventory" | sudo tee /tmp/inventory
 
 # Start rpmfactory+koji deployment playbook
-(cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
+(cd ansible; exec ansible-playbook -i /tmp/invenoty rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
 
 # Run rpmfactory integration test playbook
 EXTRA_VAR="os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME} nodepool_net=${SF_SLAVE_NETWORK}"
 EXTRA_VAR+=" sf_domain=${DOMAIN} sf_managesf_ip=${SF_IP} sf_koji_ip=${KOJI_IP}"
-(cd ansible; exec ansible-playbook -i preprod-hosts rpmfactory-integration-tests.yml --extra-vars "${EXTRA_VAR}")
+(cd ansible; exec ansible-playbook -i /tmp/inventory rpmfactory-integration-tests.yml --extra-vars "${EXTRA_VAR}")

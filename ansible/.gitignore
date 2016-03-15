@@ -5,5 +5,6 @@ roles/koji-db/
 roles/koji-hub/
 roles/koji-kojira/
 roles/koji-web/
+roles/koji-client/
 roles/patrik.uytterhoeven.PostgreSQL-For-RHEL6x/
 ansible-koji.log
