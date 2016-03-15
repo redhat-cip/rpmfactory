@@ -21,16 +21,47 @@ set -e
 source rpm-koji-gating-lib.rc
 
 target_label="$1"
-koji_server="${KOJI_SERVER}"
+koji_cmd="${2:-koji}"
+if [ "$koji_cmd" = "koji" ]; then
+    koji_conf="/etc/koji.conf"
+elif [ "$koji_cmd" = "cbs" ]; then
+    koji_conf="/etc/koji.conf.d/cbs-koji.conf"
+else
+    echo "Un-supported koji command !"
+    exit 1
+fi
+
+if [ ! -f "$koji_conf" ]; then
+    echo "Unable to find koji/cbs configuration file !"
+    exit 1
+fi
+
+koji_server=$(awk -F "/" '/^server =/ {print $3}' $koji_conf)
+koji_weburl=$(awk -F " = " '/^weburl = / {print $2}' $koji_conf)
+koji_topurl=$(awk -F " = " '/^topurl = / {print $2}' $koji_conf)
+if [ -z "$koji_server" ]; then
+    echo "Unable to grab koji/cbs server from configuration file !"
+    exit 1
+fi
+if [ -z "$koji_weburl" ]; then
+    echo "Unable to grab koji/cbs weburl from configuration file !"
+    exit 1
+fi
+if [ -z "$koji_topurl" ]; then
+    echo "Unable to grab koji/cbs topurl from configuration file !"
+    exit 1
+fi
+
+# Read from .rc file
 rpmfactory_server="${SF_HOST}"
 
 currentdir=$(dirname "$0")
-koji_ui_tasks_uri="http://${koji_server}/koji/taskinfo?taskID="
+koji_ui_tasks_uri="${koji_weburl}/taskinfo?taskID="
 rpmfactory_clone_url="http://${rpmfactory_server}/r"
 rpmbuild="${HOME}/rpmbuild"
 
 zuul_ref=$(echo $ZUUL_REF |awk -F/ '{print $NF}')
-validatedurl="http://${koji_server}/kojifiles/repos/${target_label}-build/latest/x86_64/"
+validatedurl="${koji_topurl}/repos/${target_label}-build/latest/x86_64/"
 
 [ -z "${WORKSPACE}" ] && {
   echo "Please set WORKSPACE environment variable"
@@ -68,7 +99,7 @@ function start_build_on_koji() {
   local mode=$3
   echo "Start build of: $srpm"
   set +e
-  koji build $mode "$target_label" "$srpm" &> $workdir/task_build_output
+  $koji_cmd build $mode "$target_label" "$srpm" &> $workdir/task_build_output
   set -e
   tid=$(grep 'Created' $workdir/task_build_output | awk -F': ' '{print $2}')
   echo "$tid" > $workdir/tid
@@ -80,7 +111,7 @@ function check_build_on_koji() {
   local project=$1
   local workdir="$workdir/${project}_meta"
   local tid=$(cat $workdir/tid)
-  koji taskinfo -vr "$tid" &> $workdir/task_status_output
+  $koji_cmd taskinfo -vr "$tid" &> $workdir/task_status_output
   state=$(egrep "^State:" $workdir/task_status_output | awk -F': ' '{print $2}')
   if [ "$state" = "failed" ]; then
     echo "Task $tid failed with status: $state"
@@ -160,7 +191,7 @@ function fetch_rpms() {
     project=$(echo $chg | cut -d':' -f1)
     echo -e "\n--- Fetchs RPMs for $project ---"
     tid=$(cat $workdir/${project}_meta/tid)
-    koji download-task $tid
+    $koji_cmd download-task $tid
   done
   popd 
 }
