@@ -3,30 +3,37 @@
 
 - src:  https://github.com/kostyrevaa/ansible-koji-db.git
   name: koji-db
+  version: c46a8da596939005623d1da97f837a7d8eaa558f # HEAD before 03/12/2016
   path: roles
 
 - src:  https://github.com/kostyrevaa/ansible-koji-web.git
   name: koji-web
+  version: 7157868fc0af6489dc146358b08acaa95c8a6e3c # HEAD before 03/12/2016
   path: roles
 
-- src:  https://github.com/kostyrevaa/ansible-koji-kojira.git
+- src:  https://github.com/kostyrevaa/ansible-koji-kojira.git 
   name: koji-kojira
+  version: d06213853b20044e23b6401192dcc789420f149c # HEAD before 03/12/2016
   path: roles
 
 - src:  https://github.com/kostyrevaa/ansible-koji-hub.git
   name: koji-hub
+  version: ad83f312fb1568196205b383199cf029d26f5840 # HEAD before 03/12/2016
   path: roles
 
 - src:  https://github.com/kostyrevaa/ansible-koji-client.git
   name: koji-client
+  version: b724d5d21dfb113ce581cd0fbf320031d860043f # HEAD before 03/12/2016
   path: roles
 
 - src:  https://github.com/kostyrevaa/ansible-koji-ca.git
   name: koji-ca
+  version: e37da5b502233ee0c53a2efefbf4076e1264dc98 # HEAD before 03/12/2016
   path: roles
 
 - src:  https://github.com/kostyrevaa/ansible-koji-builder.git
   name: koji-builder
+  version: c86c96b82b30891fb3ffaeb2cec56f22cdc08aa5 # HEAD before 03/12/2016
   path: roles
 
 - src: goozbach.EPEL
