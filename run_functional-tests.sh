@@ -166,7 +166,7 @@ koji.${DOMAIN}
 echo "$inventory" | sudo tee /tmp/inventory
 
 # Start rpmfactory+koji deployment playbook
-(cd ansible; exec ansible-playbook -i /tmp/invenoty rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
+(cd ansible; exec ansible-playbook -i /tmp/inventory rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
 
 # Run rpmfactory integration test playbook
 EXTRA_VAR="os_username=${OS_USERNAME} os_auth_url=${OS_AUTH_URL} os_password=${OS_PASSWORD} os_tenant_name=${OS_TENANT_NAME} nodepool_net=${SF_SLAVE_NETWORK}"
