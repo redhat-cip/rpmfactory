@@ -3,25 +3,29 @@ RPM Factory
 
 # Additions to Software Factory to build/store RPMs seamlessly
 
-Software Factory is a CI platform that provides a powerful platform
+Software Factory is a CI platform that provides a powerful environment
 to build software. It is based on Gerrit/Zuul/Jenkins and Nodepool.
 
-RPM Factory is bits to add to a formal Software Factory:
+RPM Factory is additions to add to a [Software Factory](http://github.com/redhat-cip/software-factory):
 
-* Default JJB macro to build and export RPM packages in RPM repositories
+* Gating scripts designed to communicate with a Koji builder
+* Default JJB macros to build and export RPM packages in RPM repositories
 * Default Nodepool image preparation script
 
-RPM Factory allows to perform gating both at Git repositories and
-RPM repositories level.
+RPM Factory allows to perform RPM projects gating two levels:
+* at Git repositories
+* at RPM repositories
 
 RPM Factory can be used against an already deployed Koji or CBS.
 But RPM Factory also comes with and Ansible playbook to deploy
 a Koji instance.
 
-# Deploy RPMFactory specialization on an existing SF
+# Deploy RPM Factory specialization on an existing SF
+
+RPM Factory comes with an Ansible playbook to ease SF specialization.
 
 This is quite safe to apply it to running SF. Here is the list of
-actions that will be performed:
+actions that will be performed by the playbook:
 
 - Copy koji client certificate on the SF node
 - Install koji client certificate in Jenkins Credential Binding
@@ -32,7 +36,8 @@ actions that will be performed:
 - Install RPM Factory Jobs macros (JJB) in the config repo
 - Install RPM Factory base nodepool image in the config repo
 
-Configure the role: roles/sf-rpmfactory/defaults/main.yml
+
+First configure the role: roles/sf-rpmfactory/defaults/main.yml
 
 ```YAML
 ---
@@ -54,7 +59,7 @@ koji_client_cert_path:
 
 ```
  
-Prepare an inventory file:
+Then prepare an inventory file and run the playbook:
 
 ```bash
 cat << EOF > /tmp/inv
@@ -74,13 +79,13 @@ ansible-playbook -i /tmp/inv rpmfactory.yml
 
 Here is an example of job that will request a build againt the koji
 build server using the dist-centos7 target. base-pkg-validation builder
-is installed by RPM factory specialization playbook.
+is installed by RPM Factory specialization playbook.
 
 base-pkg-validation builder will only perform scratch builds
 aginst the koji builder.
 
 Not that by default if koji is given as kojicmd then the koji server
-used is the one configured before running the Ansible playbook.
+that is used is the one configured before running the Ansible playbook.
 
 Note also that a .spec file should be present at the root of
 the git repository this job will handle.
