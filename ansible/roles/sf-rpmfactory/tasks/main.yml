@@ -77,7 +77,7 @@
   shell: chdir=build-gating_scripts {{ item }}
   with_items:
     - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Update gating scripts' || true"
-    - "git push -f gerrit"
+    - "git push gerrit"
   tags:
     - rpmf_install_gating_base
 
