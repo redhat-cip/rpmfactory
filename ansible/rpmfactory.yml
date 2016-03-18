@@ -2,9 +2,6 @@
 - hosts: managesf
   user: root
   gather_facts: no
-  pre_tasks:
-    - name: Wait for cloud-init success
-      wait_for: path=/var/log/cloud-init-output.log search_regex="^SUCCESS 1node-allinone$"
   roles:
     - sf-rpmfactory
   environment:

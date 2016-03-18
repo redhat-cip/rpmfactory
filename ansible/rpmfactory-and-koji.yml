@@ -1,5 +1,9 @@
 ---
 
+# This playbook should be only use from the run_functional-tests.sh
+# script. If you want to deploy a SF (with RPMFactory specialization)
+# plus a Koji instance then please go over the README.md file.
+
 - hosts: koji
   roles:
     - epel

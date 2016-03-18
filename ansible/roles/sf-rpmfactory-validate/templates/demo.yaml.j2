@@ -4,6 +4,7 @@
     builders:
       - base-pkg-validation:
           buildtarget: "dist-centos7"
+          kojicmd: "koji"
       - shell: |
           sudo yum -y install /home/jenkins/rpmbuild/RPMS/noarch/rpmfactory-temp-release-1.0-1.noarch.rpm
           yum search p1
@@ -23,6 +24,7 @@
     builders:
       - base-pkg-exportation:
           buildtarget: "dist-centos7"
+          kojicmd: "koji"
       - shell: |
           echo "Simulate export ..."
           echo "Exported !"

@@ -97,7 +97,7 @@ echo -e "\n[+] Security group configured"
 grep -q koji.${DOMAIN} /etc/hosts || echo koji.${DOMAIN} | sudo tee -a /etc/hosts
 grep -q managesf.${DOMAIN} /etc/hosts || echo managesf.${DOMAIN} | sudo tee -a /etc/hosts
 sudo sed -i /etc/hosts -e "s/^.*koji.${DOMAIN}/${KOJI_IP} koji koji.${DOMAIN}/" \
-                  -e "s/^.*managesf.${DOMAIN}/${SF_IP} managesf managesf.${DOMAIN}/"
+                  -e "s/^.*managesf.${DOMAIN}/${SF_IP} managesf managesf.${DOMAIN} ${DOMAIN}/"
 
 # Set instances /etc/hosts so that "hostname -f" worked as expected (else it fails with 'host not found')
 # Probably a cloud-init bug

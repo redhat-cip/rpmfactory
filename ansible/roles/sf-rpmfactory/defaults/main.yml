@@ -1,12 +1,13 @@
 ---
 # SF Access
 fqdn: "rpmfactory.sftests.com"
+# SF password to access services as admin
 admin_password: "userpass"
 
 # Defaut for bender service user
 bender_name: "sfrdobender"
 bender_email_name: "sfrdobender"
-# Please set a strong one
+# Password to be set for that user. Please set a strong one
 bender_password: "pwdtochange"
 
 # Koji server

@@ -39,6 +39,8 @@
   tags:
     - rpmf_koji_fetch_cred_uuid
     - prepare_rpmf_validation
+    # Complain if the variable is not register
+    - prepare_rpmf_validation_config_repo
 
 # Workaround to wait for hieraedit to land in SF
 - name: Copy modified version of hieraedit.py (temp)
@@ -70,15 +72,26 @@
   tags:
     - prepare_rpmf_validation
 
+- name: Reset local config repo
+  command: chdir=config {{ item }}
+  with_items:
+    - "git fetch --all"
+    - "git reset --hard origin/master --"
+  tags:
+    - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
+
 - name: Install jobs for testing
   template: src=../templates/demo.yaml.j2 dest=config/jobs/demo.yaml
   tags:
     - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
 
 - name: Clean previous jobs to be triggered for p1-distgit
   command: hieraedit.py --yaml config/zuul/projects.yaml --delete name projects p1-distgit
   tags:
     - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
 
 - name: Configure jobs to be triggered for p1-distgit
   command: >
@@ -89,6 +102,7 @@
         }"
   tags:
     - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
 
 - name: Commit config repo changes
   shell: chdir=config  {{ item }}
@@ -96,22 +110,33 @@
       - "test -n \"$(git ls-files -o -m --exclude-standard)\" && git add -A . && git commit -m 'Adds Zuul config for project p1 and p1-distgit' || true"
   tags:
     - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
 
 - name: Check for a change in local config repo
   command: chdir=config git diff HEAD origin/master
   register: diff
   tags:
     - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
+
 - name: Submit jobs to config repo and wait for validation before submition
   when: diff.stdout != ''
   shell: chdir=config submit_and_wait.py --approve
   tags:
     - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
 
 - name: Wait for config-update (new job)
   wait_for: path=/var/lib/jenkins/jobs/package-validate
+  tags:
+    - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
+
 - name: Wait for config-update (new layout)
   wait_for: path=/var/log/zuul/zuul.log search_regex="Job package-validate"
+  tags:
+    - prepare_rpmf_validation
+    - prepare_rpmf_validation_config_repo
 
 - name: Reset p1-distgit
   command: chdir=build-p1-distgit {{ item }}
