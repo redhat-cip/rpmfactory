@@ -17,12 +17,11 @@
     - koji-rpmfactory
     - koji-builder
 
-- hosts: 127.0.0.1
-  connection: local
+- hosts: koji
   gather_facts: no
   tasks:
     - name: Fetch Koji auto-generated client certificate
-      shell: sudo -u centos scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no centos@koji:/srv/jenkins-koji.tgz /tmp/jenkins-koji.tgz
+      fetch: src=/srv/jenkins-koji.tgz dest=/tmp/ flat=yes
       tags:
         - rpmf_koji_cert
 
