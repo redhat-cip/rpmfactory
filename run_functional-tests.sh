@@ -33,7 +33,7 @@ echo "Installing: $PIP_DEPS"
     nova delete managesf.${DOMAIN} 2> /dev/null
     # FIXME: only destroy instance connected to nodepool network for this DOMAIN
     for h in $(nova list | grep "\(${DOMAIN}\|rpmfactory-base-worker\)" | awk '{ print $2 }'); do nova delete $h; done
-    for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip; done
+    #for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip; done
     echo -e "[+] Deleting the stack"
     heat stack-delete ${DOMAIN}
     let RETRY=300
@@ -59,9 +59,46 @@ echo "Installing: $PIP_DEPS"
 KP_NAME=id_rsa_$(echo ${DOMAIN} | tr '.' '_')
 openstack keypair show ${KP_NAME} || openstack keypair create --public-key ~/.ssh/id_rsa.pub ${KP_NAME}
 
+# Get glance image
+function get_image {
+    local name=$1
+    local url=$2
+
+    openstack image list | grep -q "${name}" || image_uuid=$(glance image-create --progress     \
+            --disk-format qcow2 --container-format bare \
+            --copy-from "${url}" --name "${name}"       \
+            | awk '/ id/ { print $4 }')
+    # wait for image to be active
+    [ -z "${image_uuid}" ] && image_uuid=$(glance image-show "${name}" | awk '/ id/ { print $4 }')
+    if [ -z "${image_uuid}" ]; then
+        echo "[ERROR]: can't find image ${name}" > /dev/stderr
+        exit 1
+    fi
+    RETRY=150
+    while [ ${RETRY} -gt 0 ]; do
+        glance image-show ${image_uuid} | grep -q 'status .* active' && break
+        echo -n "."
+        let RETRY-=1
+        [ ${RETRY} -gt 0 ] || { echo -e "\n${name}: Image failed to become active (${image_uuid})" > /dev/stderr ; exit 1; }
+        sleep 2
+    done
+    echo "${image_uuid}"
+}
+centos_uuid=$(get_image "CentOS 7 (1511)" "http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1602.qcow2")
+sfimage_uuid=$(get_image "sf-2.1.8" "http://46.231.133.241:8080/v1/AUTH_sf/sf-images/softwarefactory-C7.0-2.1.8.img.qcow2")
+if [ -z "${sfimage_uuid}" ]; then
+    echo "Failed to get sf image uuid";
+    exit 1
+fi
+
+# Get neutron network
+net_uuid=$(neutron net-list | grep "\(external\|public\)" | awk '{ print $2 }')
+
+
 # Start the stack
 echo -e "[+] Starting the stack"
-heat stack-create --template-file rpmfactory.hot.yaml ${DOMAIN} -P "key_name=${KP_NAME};domain=${DOMAIN}"
+heat stack-create --template-file rpmfactory.hot.yaml ${DOMAIN} -P "key_name=${KP_NAME};ext_net_uuid=${net_uuid};domain=${DOMAIN};image_id=${sfimage_uuid};baseimage_id=${centos_uuid}"
+
 RETRY=1800
 while [ -z "$(heat stack-show ${DOMAIN} | grep CREATE_COMPLETE)" ]; do
     echo -n "."
@@ -166,6 +203,10 @@ koji.${DOMAIN}
 echo "$inventory" | sudo tee /tmp/inventory
 
 # Start rpmfactory+koji deployment playbook
+[ -d /var/lib/ansible ] || {
+    sudo mkdir /var/lib/ansible
+}
+sudo chown $USER /var/lib/ansible
 (cd ansible; exec ansible-playbook -i /tmp/inventory rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
 
 # Run rpmfactory integration test playbook
