@@ -52,6 +52,12 @@
   tags:
     - koji-jenkins
 
+- name: Ensure httpd is stopped
+  service: name=httpd state=stopped enabled=yes
+  tags:
+    - koji-rpmfactory
+    - kojiadmin-add-hosts
+
 - name: Ensure httpd is running
   service: name=httpd state=started enabled=yes
   tags:
