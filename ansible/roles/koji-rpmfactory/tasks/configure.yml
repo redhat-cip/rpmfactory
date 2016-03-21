@@ -44,43 +44,17 @@
   tags:
     - koji-jenkins
 
-- name: Make jenkins tar to send to nodepool
-  shell: "tar cvzf jenkins-koji.tgz .koji/client.crt .koji/clientca.crt .koji/serverca.crt"
-  args:
-    creates: "/srv/jenkins-koji.tgz"
-    chdir: "/srv"
+- name: Ensure httpd is stopped
+  service: name=httpd state=stopped enabled=yes
   tags:
-    - koji-jenkins
+    - koji-rpmfactory
+    - kojiadmin-add-hosts
 
 - name: Ensure httpd is running
   service: name=httpd state=started enabled=yes
   tags:
     - koji-rpmfactory
     - kojiadmin-add-hosts
-
-- name: Create /var/www/html/conf/
-  file: path=/var/www/html/conf state=directory mode=0755
-  tags:
-    - koji-jenkins
-
-- name: Copy Koji configuration for jenkins user
-  copy: src=koji.conf dest=/var/www/html/conf/koji.conf owner=root group=root mode=0644
-  tags:
-    - koji-jenkins
-
-- name: Copy jenkins koji tgz to httpd directory
-  shell: "cp /srv/jenkins-koji.tgz /var/www/html/conf/"
-  args:
-    creates: "/var/www/html/conf/jenkins-koji.tgz"
-  tags:
-    - koji-jenkins
-
-- name: Fix rights on conf directory
-  shell: "/bin/chcon -R -t public_content_rw_t /var/www/html/conf && touch /srv/.koji/.rightconf.done"
-  args:
-    creates: /srv/.koji/.rightconf.done
-  tags:
-    - koji-rpmfactory
 
 - name: Copy SSH keys to centos user (nodepool and jenkins also)
   copy: src=authorized_keys dest=/home/centos/.ssh/authorized_keys owner=centos group=centos mode=0600
