@@ -1,0 +1,11 @@
+--- roles/koji-kojira/tasks/main.yml.orig	2016-03-22 11:30:55.185567047 +0000
++++ roles/koji-kojira/tasks/main.yml	2016-03-22 11:32:55.190567047 +0000
+@@ -32,7 +32,7 @@
+ - name: Grant repo permission to kojira
+   become: yes
+   become_user: kojiadmin
+-  shell: "/usr/bin/koji grant-permission repo kojira && touch /home/kojiadmin/.koji/.grant-kojira.done"
++  shell: "sleep 7 && /usr/bin/koji grant-permission repo kojira && touch /home/kojiadmin/.koji/.grant-kojira.done"
+   args:
+     creates: /home/kojiadmin/.koji/.grant-kojira.done
+   when: koji_kojira_grant_repo

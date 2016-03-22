@@ -1,5 +1,12 @@
 ---
 
+- name: Fix rights on builder topdir
+  shell: "/bin/chcon -R -t public_content_rw_t {{ koji_builder_topdir }} && touch /home/kojiadmin/.koji/.rightbuilders.done"
+  args:
+    creates: /home/kojiadmin/.koji/.rightbuilders.done
+  tags:
+    - koji-rpmfactory
+
 - name: Add and configure builders | Do add koji-builder01 to database
   become: yes
   become_user: kojiadmin
@@ -10,10 +17,3 @@
   tags:
     - koji-rpmfactory
     - kojiadmin-add-hosts
-
-- name: Fix rights on builder topdir
-  shell: "/bin/chcon -R -t public_content_rw_t {{ koji_builder_topdir }} && touch /home/kojiadmin/.koji/.rightbuilders.done"
-  args:
-    creates: /home/kojiadmin/.koji/.rightbuilders.done
-  tags:
-    - koji-rpmfactory
