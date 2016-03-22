@@ -29,11 +29,21 @@ echo "Installing: $PIP_DEPS"
 
 # Stop previous stack
 [ -z "${FRESH_START}" ] || {
-    echo -e "[+] Removing nodepool slave"
-    nova delete managesf.${DOMAIN} 2> /dev/null
-    # FIXME: only destroy instance connected to nodepool network for this DOMAIN
-    for h in $(nova list | grep "\(${DOMAIN}\|rpmfactory-base-worker\)" | awk '{ print $2 }'); do nova delete $h; done
-    for ip in $(openstack ip floating list | awk '{ print $2 }'); do openstack ip floating delete $ip; done
+    nova list
+    managesf_server_id=$(nova list | grep "managesf.${DOMAIN}" | awk '{ print $2 }')
+    [ -z "$managesf_server_id" ] || {
+        echo -e "[+] Shutdown managesf instance ($managesf_server_id)"
+        nova stop $managesf_server_id
+    }
+    for h in $(nova list | grep "slave_net" | grep "rpmfactory-base-worker" | awk '{ print $2 }'); do
+        echo -e "[+] Removing nodepool slave ($h)"
+        nova delete $h
+        fip_id=$(openstack ip floating list | grep $h | awk '{ print $2 }')
+        [ -z "$fip_id" ] || {
+            echo -e "[+] Removing nodepool slave floating ip ($fip_id)"
+            openstack ip floating delete $fip_id
+        }
+    done
     echo -e "[+] Deleting the stack"
     heat stack-delete ${DOMAIN}
     let RETRY=300

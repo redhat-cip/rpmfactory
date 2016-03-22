@@ -31,6 +31,17 @@
   copy: src=../files/p1-1.0.tgz dest=/tmp/fake_server_rootdir/
   tags:
     - prepare_rpmf_validation_fake_server
+- name: Check fakeserver running
+  shell: netstat -ltpn | grep 8999
+  ignore_errors: True
+  register: nt_result
+  tags:
+    - prepare_rpmf_validation_fake_server
+- name: Force restart fake service
+  service: name=fakeserver state=started
+  when: nt_result.rc != 0
+  tags:
+    - prepare_rpmf_validation_fake_server
 
 # Fetch secret file UUID from credential binding
 - name: Fetch client cert UUID in Credential Binding

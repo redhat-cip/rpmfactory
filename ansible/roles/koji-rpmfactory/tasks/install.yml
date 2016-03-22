@@ -1,6 +1,6 @@
 ---
 
-- name: Copy koji-setup and mirror scripts
+- name: Copy koji-setup.sh
   copy: src=setup-koji.sh dest=/usr/local/bin/ owner=root group=root mode=0755
   tags:
     - koji-rpmfactory
