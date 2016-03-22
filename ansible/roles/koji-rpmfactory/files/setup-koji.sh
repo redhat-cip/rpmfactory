@@ -35,6 +35,5 @@ koji add-group dist-centos7-build srpm-build
 koji add-group-pkg dist-centos7-build build bash bzip2 coreutils cpio diffutils findutils gawk gcc grep sed gcc-c++ gzip info patch redhat-rpm-config rpm-build shadow-utils tar unzip util-linux-ng which make
 koji add-group-pkg dist-centos7-build srpm-build bash gnupg make redhat-rpm-config rpm-build shadow-utils wget rpmdevtools
 
-#FIXME bug with regen-repo TypeError: 'int' object is not iterable
-#exit 1
-koji regen-repo dist-centos7-build || true
+# Keep this task at background. No builder (kojid) available at this moment.
+koji regen-repo --nowait dist-centos7-build

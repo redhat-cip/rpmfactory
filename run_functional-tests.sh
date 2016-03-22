@@ -29,9 +29,13 @@ echo "Installing: $PIP_DEPS"
 
 # Stop previous stack
 [ -z "${FRESH_START}" ] || {
-    #nova delete managesf.${DOMAIN} 2> /dev/null
-    # FIXME: only destroy instance connected to nodepool network for this DOMAIN
-    for h in $(nova list | grep "slave_net" | grep "\(${DOMAIN}\|rpmfactory-base-worker\)" | awk '{ print $2 }'); do
+    nova list
+    managesf_server_id=$(nova list | grep "managesf.${DOMAIN}" | awk '{ print $2 }')
+    [ -z "$managesf_server_id" ] || {
+        echo -e "[+] Shutdown managesf instance ($managesf_server_id)"
+        nova stop $managesf_server_id
+    }
+    for h in $(nova list | grep "slave_net" | grep "rpmfactory-base-worker" | awk '{ print $2 }'); do
         echo -e "[+] Removing nodepool slave ($h)"
         nova delete $h
         fip_id=$(openstack ip floating list | grep $h | awk '{ print $2 }')
@@ -172,6 +176,7 @@ koji.${DOMAIN}
 echo "$inventory" | sudo tee /tmp/inventory
 
 # Start rpmfactory+koji deployment playbook
+(cd ansible; patch -f -p0 < kojira_main.patch)
 (cd ansible; exec ansible-playbook -i /tmp/inventory rpmfactory-and-koji.yml --extra-vars "CN=koji.${DOMAIN}")
 
 # Run rpmfactory integration test playbook

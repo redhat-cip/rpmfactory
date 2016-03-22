@@ -14,8 +14,8 @@
     - koji-client
     - koji-kojira
     - koji-web
-    - koji-builder
     - koji-rpmfactory
+    - koji-builder
 
 - hosts: 127.0.0.1
   connection: local
